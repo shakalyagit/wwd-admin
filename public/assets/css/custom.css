@@ -1,0 +1,880 @@
+ :root {
+     --low: #8bc34a;
+     --moderate: #ffeb3b;
+     --high: #ff9800;
+     --extreme: #f44336;
+     --grid: #ddd;
+     --text: #222;
+ }
+
+ .complaint_edit_btn a:hover {
+     background-color: unset !important;
+ }
+
+ /* Input type file  */
+ .file-preview {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 10px;
+ }
+
+ .file-preview img {
+     max-width: 100px;
+     max-height: 100px;
+ }
+
+ .file-preview .file-container {
+     position: relative;
+ }
+
+ .file-preview .file-container button {
+     position: absolute;
+     top: 20px;
+     right: 0;
+     background: white;
+     color: #ff1100;
+     border: none;
+     border-radius: 50%;
+     width: 25px;
+     height: 25px;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     cursor: pointer;
+ }
+
+ .edit_complaint_file {
+     background: white;
+     color: #ff1100;
+     border: none;
+     border-radius: 50%;
+     width: 25px;
+     height: 25px;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     cursor: pointer;
+ }
+
+ .upload-area {
+     border: 2px dashed #748194;
+     border-radius: 5px;
+     padding: 20px;
+     text-align: center;
+     cursor: pointer;
+ }
+
+ .upload-area:hover {
+     background-color: #f0f0f0;
+ }
+
+ .main .bg-white {
+     background-color: rgb(243 244 246) !important;
+ }
+
+ .main .card {
+     /* --falcon-card-bg: var(--falcon-emphasis-bg);
+	-webkit-box-shadow: var(--falcon-box-shadow);
+	box-shadow: var(--falcon-box-shadow); */
+
+     --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1);
+     --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+     box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+ }
+
+ .main .card p {
+     font-size: 14px;
+     text-align: left;
+ }
+
+ .form-group>label {
+     display: inline-block;
+     margin-bottom: .5rem;
+     font-weight: 500;
+     /* color: #01013e !important; */
+ }
+
+ .form-group .form-control,
+ .form-group .form-select {
+     display: block;
+     width: 100%;
+     height: calc(2.25rem + 2px);
+     padding: .375rem .75rem;
+     font-size: 13px;
+     font-weight: 400;
+     line-height: 1.5;
+     color: #787878 !important;
+     background-color: #fff;
+     background-clip: padding-box;
+     border: 1px solid #ced4da !important;
+     border-radius: .25rem !important;
+     box-shadow: inset 0 0 0 transparent;
+     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+ }
+
+ .card-header {
+     padding: 10px;
+ }
+
+ .card-header h5 {
+     padding: 0;
+     margin: 0;
+     font-size: 16px;
+ }
+
+ .pull-left {
+     float: left;
+ }
+
+ .pull-right {
+     float: right;
+ }
+
+ .clear {
+     font-size: 0px;
+     line-height: 0px;
+     clear: both;
+ }
+
+ .content-header {
+     padding: 30px 0 15px 0;
+     margin: 0;
+ }
+
+ .content-header h5 {
+     padding: 10px 0 0 0;
+     margin: 0;
+ }
+
+ .navbar-vertical.navbar-expand-xl+.content .navbar-top {
+     background: #fff;
+     border-bottom: 1px solid #ccc;
+ }
+
+ .navbar-vertical.navbar-expand-xl .navbar-collapse {
+     background: #ffffff;
+     box-shadow: 0px 2px 2px 1px rgba(0, 0, 0, 0.2);
+     margin: 10px auto;
+ }
+
+ .navbar-vertical.navbar-vibrant .navbar-nav .nav-item .navbar-vertical-label {
+     color: #748194;
+ }
+
+ .navbar-vertical.navbar-vibrant .navbar-vertical-divider {
+     color: #748194;
+ }
+
+ .navbar-vertical.navbar-vibrant .navbar-nav .nav-item .nav-link {
+     color: #748194;
+ }
+
+ .navbar .logo_nav {
+     background: #fff;
+     border-bottom: 1px solid #ccc;
+ }
+
+ .navbar .logo_nav .navbar-brand {
+     padding: 15px 0;
+ }
+
+ .sticky-sidebar .card h6 {
+     font-size: 15px !important;
+     font-weight: 600;
+     color: #01013e;
+ }
+
+ .btn {
+     font-weight: 500 !important;
+     font-size: 1rem !important;
+     font-family: inherit !important;
+     line-height: inherit !important;
+     border-radius: 6px !important;
+ }
+
+ .button1 {
+     background: #06069d;
+     color: #fff;
+ }
+
+ .button1:hover {
+     background: #04043b;
+     color: #fff;
+ }
+
+ .scrollbar ul {
+     padding: 0;
+     margin: 0;
+ }
+
+ .scrollbar ul li {
+     padding: 5px 0;
+     margin: 0;
+ }
+
+ .scrollbar ul li a {
+     padding: 5px 7px !important;
+     margin: 0;
+ }
+
+ .scrollbar ul li a.active {
+     padding: 5px 7px !important;
+     margin: 0;
+     background: #e0e8f2;
+     color: #57616e !important;
+     border-radius: 9px;
+ }
+
+ .custom_badge {
+     display: inline-block;
+     padding: 5px 5px;
+     font-size: 12px;
+     line-height: 1;
+     border-radius: 10rem;
+     width: 80px;
+     text-align: center;
+     border: 1px solid;
+     font-weight: 500;
+
+ }
+
+ .low_badge {
+     background: #8bc34a;
+     border-color: #64921d;
+     color: #22360a;
+ }
+
+ .average_badge {
+     background: #ffeb3b;
+     border-color: #cbbb00;
+     color: #585100;
+ }
+
+ .moderate_badge {
+     background: #ff9800;
+     border-color: #cb7d03;
+     color: #4a2d00;
+ }
+
+ .high_badge {
+     background: #f44336;
+     border-color: #bd1403;
+     color: #ffffff;
+ }
+
+ .undefined_badge {
+     background: #e6e3e3;
+     border-color: #8a8685;
+     color: #191818;
+ }
+
+ .pagination-wrapper {
+     padding: 5px 15px !important;
+ }
+
+ .page-link {
+     padding: 5px 12px !important;
+ }
+
+ /* Card skeleton loader Start */
+ .pulsate {
+     /* background: linear-gradient(-45deg, #DDDDDD, #F0F0F0, #DDDDDD, #F0F0F0); */
+     background: linear-gradient(-90deg, #DDDDDD, #F0F0F0, #DDDDDD, #F0F0F0);
+     background-size: 400% 400%;
+     -webkit-animation: Gradient 2.25s ease infinite;
+     -moz-animation: Gradient 2.25s ease infinite;
+     animation: Gradient 2.25s ease infinite;
+     border-radius: 8px;
+ }
+
+ /* Animation Keyframes */
+ @keyframes Gradient {
+     0% {
+         background-position: 0% 50%;
+     }
+
+     50% {
+         background-position: 100% 50%;
+     }
+
+     100% {
+         background-position: 0% 50%;
+     }
+ }
+
+ /* Card skeleton loader End */
+ .no_record_found {
+     font-size: 30px !important;
+     font-weight: 500;
+ }
+
+ .offcanvas-header {
+     border-bottom: 1px solid #dddddd;
+ }
+
+ .offcanvas-body {
+     position: relative;
+ }
+
+ .apply-button {
+     position: fixed;
+     right: 50px;
+     top: 15px;
+ }
+
+ .comment-card {
+     background-color: #f9f9f9;
+     border-radius: 8px;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+     overflow: hidden;
+     transition: all 0.3s ease;
+     padding: 15px;
+ }
+
+ .comment-section {
+     display: flex;
+     flex-direction: column;
+     height: 500px;
+     overflow-y: auto;
+ }
+
+ .comment {
+     padding: 15px;
+ }
+
+ .comment-header {
+     display: flex;
+     align-items: center;
+     margin-bottom: 10px;
+ }
+
+ .comment-avatar {
+     width: 40px;
+     height: 40px;
+     border-radius: 50%;
+     margin-right: 10px;
+ }
+
+ .comment-author-info {
+     display: flex;
+     flex-direction: column;
+ }
+
+ .comment-author {
+     font-weight: 600;
+     font-size: 16px;
+     color: #333;
+ }
+
+ .comment-date {
+     font-size: 12px;
+     color: #888;
+ }
+
+ .comment-text {
+     font-size: 14px;
+     color: #555;
+     line-height: 1.6;
+ }
+
+ .card .card-header h6 {
+     padding: 0;
+     margin: 0;
+     font-size: 17px;
+     font-weight: 500;
+ }
+
+ .card .card-body h6 {
+     padding: 0;
+     margin: 0;
+     font-size: 13px;
+     font-weight: 500;
+ }
+
+ .card .card-body p {
+     padding: 0;
+     margin: 0;
+     font-size: 13px;
+ }
+
+ .profile_box {
+     padding: 0;
+     margin: 0 auto;
+     width: 100%;
+ }
+
+ .icon_box {
+     padding: 0;
+     margin: 0 15px 0 0;
+     width: 50px;
+     height: 50px;
+     overflow: hidden;
+     float: left;
+     border-radius: 50%;
+     border: 2px solid #999;
+ }
+
+ .icon_box img {
+     padding: 0;
+     margin: 0 auto;
+     width: 100%;
+     height: auto;
+
+     border-radius: 50%;
+ }
+
+ .comment-text-box {
+     padding: 15px;
+     margin: 0 auto 15px;
+     background: #e7e9eb;
+     border-radius: 5px;
+ }
+
+ .comment-text-box p {
+     padding: 0;
+     margin: 0 auto 0;
+
+ }
+
+ .comment-author-info-box {
+     padding: 0;
+     margin: 0 auto;
+     width: 95%;
+     border-bottom: 1px solid #dddddd;
+ }
+
+ .form-check {
+     display: block;
+     min-height: 1.5rem;
+     padding-left: 1.5em;
+     margin-bottom: 0.34375rem;
+ }
+
+ .form-check-input {
+     --falcon-form-check-bg: transparent;
+     flex-shrink: 0;
+     width: 1em;
+     height: 1em;
+     margin-top: 0.25em;
+     vertical-align: top;
+     appearance: none;
+     background-color: var(--falcon-form-check-bg);
+     background-image: var(--falcon-form-check-bg-image);
+     background-repeat: no-repeat;
+     background-size: contain;
+     background-position: center center;
+     border: 1px solid var(--falcon-gray-400) !important;
+     border-radius: 0.25em !important;
+ }
+
+ .checkbox_height {
+     height: 500px;
+     overflow-y: scroll;
+ }
+
+ /* Risk mitigation workflow css - start */
+ .timeline {
+     position: relative;
+     padding-left: 20px;
+ }
+
+ .timeline-item {
+     position: relative;
+     margin-bottom: 1.5rem;
+ }
+
+ .timeline-point {
+     position: absolute;
+     left: -10px;
+     top: 5px;
+     width: 14px;
+     height: 14px;
+     border-radius: 50%;
+ }
+
+ .timeline-content {
+     padding-left: 10px;
+ }
+
+ /* Risk mitigation workflow css - end */
+ .card_title {
+     font-size: 15px !important;
+ }
+
+ .echart-crm-statistics p {
+     margin-top: 15px !important;
+ }
+
+ /*===========================================
+Dashboard page design CSS start
+=============================================*/
+ /* .dashboard-container {
+     background-color: #ffffff;
+     border-radius: 8px;
+     padding: 2rem;
+     margin-top: 2rem;
+ } */
+
+ .dashboard-header .logo {
+     font-weight: bold;
+     font-size: 1.5rem;
+     color: #0d6efd;
+ }
+
+ .dashboard-header .header-title {
+     font-size: 1.2rem;
+     color: #343a40;
+     border-left: 1px solid #dee2e6;
+     padding-left: 1rem;
+     margin-left: 1rem;
+ }
+
+ .dashboard-nav .nav-link {
+     color: #343a40;
+ }
+
+ .dashboard-nav .nav-link.active {
+     font-weight: bold;
+     border-bottom: 2px solid #0d6efd;
+     color: #0d6efd;
+ }
+
+ .back-button {
+     border-radius: 20px;
+ }
+
+ .risk-title-container {
+     text-align: center;
+     position: relative;
+ }
+
+ .risk-title {
+     display: inline-block;
+     padding: 0.5rem 1rem;
+     border: 1px solid #dee2e6;
+     border-radius: 5px;
+     background-color: #fff;
+     position: relative;
+     z-index: 1;
+ }
+
+ /* Main vertical connector line */
+ .risk-title-container::after {
+     content: '';
+     position: absolute;
+     top: 100%;
+     left: 50%;
+     transform: translateX(-50%);
+     width: 2px;
+     height: 40px;
+     background-color: #a7c7e7;
+     z-index: 0;
+ }
+
+ .risk-cards-container {
+     position: relative;
+     margin-top: 40px;
+     /* Space for the connector */
+ }
+
+ /* Horizontal connector line */
+ .risk-cards-container::before {
+     content: '';
+     position: absolute;
+     top: 0;
+     left: 11.55%;
+     right: 11.55%;
+     height: 2px;
+     background-color: #a7c7e7;
+     z-index: 0;
+ }
+
+ .risk-card {
+     position: relative;
+     padding-top: 40px;
+     /* Space for connector and image */
+     text-align: center;
+ }
+
+ /* Vertical connector for each card */
+ .risk-card::before {
+     content: '';
+     position: absolute;
+     top: 0;
+     left: 50%;
+     transform: translateX(-50%);
+     width: 2px;
+     height: 40px;
+     background-color: #a7c7e7;
+     z-index: 0;
+ }
+
+ /* Arrow line pointing down from the person card */
+ .risk-card::after {
+     content: '';
+     position: absolute;
+     top: 140px;
+     left: 50%;
+     transform: translateX(-50%);
+     width: 1.5px;
+     height: 50px;
+     background-color: #a7c7e7;
+ }
+
+ .person-details {
+     background-color: #0d6efd;
+     color: #fff;
+     border-radius: 8px;
+     position: relative;
+     margin-top: 45px;
+ }
+
+ .person-details .profile-img {
+     width: 60px;
+     height: 60px;
+     border: 4px solid #d9e7fa;
+     position: absolute;
+     top: -50px;
+     left: 50%;
+     transform: translateX(-50%);
+     z-index: 1;
+     font-size: 30px;
+ }
+
+ fino tecnologys Pvt Ltd .person-details .number {
+     font-size: 2rem;
+     font-weight: bold;
+     padding-right: 1rem;
+     margin-right: 1rem;
+     border-right: 1px solid rgb(13 110 253);
+ }
+
+ .person-details .name {
+     font-weight: bold;
+     font-size: 0.9rem;
+ }
+
+ .person-details .role {
+     font-size: 0.8rem;
+ }
+
+ .risk-matrix {
+     display: grid;
+     grid-template-columns: repeat(5, 1fr);
+     grid-template-rows: repeat(5, 50px);
+     gap: 2px;
+     margin-top: 2.5rem;
+     border: 1px solid #dee2e6;
+     padding: 5px;
+ }
+
+ .risk-cell {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     border: .2px solid var(--grid);
+ }
+
+ .risk-cell .point {
+     width: 20px;
+     height: 20px;
+     background-color: #fff;
+     border-radius: 50%;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     font-size: 0.75rem;
+     font-weight: bold;
+     color: #343a40;
+ }
+
+ /* Risk matrix background colors */
+ .matrix-bg-1-1, .matrix-bg-1-2, .matrix-bg-2-1, .matrix-bg-2-2 {
+     background-color: #28a745;
+ }
+
+ .matrix-bg-1-3, .matrix-bg-2-3, .matrix-bg-3-1, .matrix-bg-3-2, .matrix-bg-3-3 {
+     background-color: #ffc107;
+ }
+
+ .matrix-bg-1-4, .matrix-bg-2-4, .matrix-bg-3-4, .matrix-bg-4-1, .matrix-bg-4-2, .matrix-bg-4-3 {
+     background-color: #fd7e14;
+ }
+
+ .matrix-bg-1-5, .matrix-bg-2-5, .matrix-bg-3-5, .matrix-bg-4-4, .matrix-bg-4-5, .matrix-bg-5-1, .matrix-bg-5-2, .matrix-bg-5-3, .matrix-bg-5-4, .matrix-bg-5-5 {
+     background-color: #dc3545;
+ }
+
+
+ /*===========================================
+Matrix design CSS end
+=============================================*/
+ .matrix {
+     width: 100%;
+     border-collapse: separate;
+     border-spacing: 0;
+     table-layout: fixed;
+ }
+
+ .matrix th,
+ .matrix td {
+     border: 1px solid var(--grid);
+     padding: 5px 10px 5px;
+     text-align: center;
+     vertical-align: middle;
+ }
+
+ .matrix thead th {
+     background: #f5f5f5;
+     font-weight: 700
+ }
+
+ .matrix .corner {
+     width: 160px;
+     background: #fff !important;
+     border-right: none
+ }
+
+ .matrix .axis-x {
+     font-size: 14px;
+     padding: 10px 0
+ }
+
+ .matrix .axis-y {
+     font-size: 14px;
+     writing-mode: horizontal-tb
+ }
+
+ .matrix thead .labels th {
+     font-size: 13px
+ }
+
+ .matrix thead .labels th small {
+     display: block;
+     opacity: .7;
+     font-weight: 600
+ }
+
+ .rowhead {
+     font-weight: 700;
+     width: 160px;
+     background: #fff;
+     text-align: left;
+ }
+
+ .rowhead .big {
+     font-size: 18px;
+     font-weight: 800
+ }
+
+ .rowhead small {
+     display: block;
+     font-weight: 600;
+     opacity: .75
+ }
+
+ .risk {
+     font-weight: 700;
+     border-color: #cfcfcf
+ }
+
+ .risk span {
+     display: block;
+     font-weight: 800;
+     margin-top: 2px;
+     opacity: .9
+ }
+
+ .low {
+     background: var(--low)
+ }
+
+ .moderate {
+     background: var(--moderate)
+ }
+
+ .high {
+     background: var(--high)
+ }
+
+ .extreme {
+     background: var(--extreme);
+     color: #fff
+ }
+
+ .extreme span {
+     opacity: 1
+ }
+
+ /* Responsive tweaks */
+ @media (max-width:820px) {
+     .rowhead {
+         width: 120px
+     }
+
+     .matrix th,
+     .matrix td {
+         padding: 8px
+     }
+
+     .matrix thead .labels th {
+         font-size: 12px
+     }
+
+     .rowhead .big {
+         font-size: 16px
+     }
+ }
+
+ @media print {
+     body {
+         background: #fff;
+         padding: 0
+     }
+
+     .wrap {
+         box-shadow: none;
+         border: none;
+         border-radius: 0
+     }
+ }
+
+ /* Optional legend */
+ .legend {
+     display: flex;
+     gap: 12px;
+     align-items: center;
+     flex-wrap: wrap;
+     padding: 14px 18px;
+     font-size: 13px;
+     border-top: 1px solid #eee;
+     background: #fcfcfc;
+ }
+
+ .legend .k {
+     display: inline-flex;
+     align-items: center;
+     gap: 8px
+ }
+
+ .legend .swatch {
+     width: 16px;
+     height: 16px;
+     border: 1px solid #bbb
+ }
+
+ .legend .low .swatch {
+     background: var(--low)
+ }
+
+ .legend .moderate .swatch {
+     background: var(--moderate)
+ }
+
+ .legend .high .swatch {
+     background: var(--high)
+ }
+
+ .legend .extreme .swatch {
+     background: var(--extreme)
+ }
