@@ -5,6 +5,7 @@
         height: auto !important;
     }
 </style>
+
 <div class="content-header">
     <h5 class="pull-left">Edit business - <span class="text-primary">{{ $edit_business->business_name }}</span></h5>
     <div class="ms-auto pull-right mr-2">
