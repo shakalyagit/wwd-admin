@@ -20,6 +20,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/business/{business}/approve', [BusinessController::class, 'business_approve'])->name('business_approve');
     Route::post('/business/{business}/reject', [BusinessController::class, 'business_reject'])->name('business_reject');
     Route::get('/business-filter', [BusinessController::class, 'business_list_filter'])->name('business_list_filter');
+
+    Route::get('old-business-list', [BusinessController::class, 'old_business_list'])->name('old_business_list');
+    Route::get('edit-old-business/{old_business_id}', [BusinessController::class, 'edit_old_business'])->name('edit_old_business');
+
 });
 
 Route::group(['middleware' => 'guest'], function () {

@@ -6,6 +6,7 @@ use App\Models\Business;
 use App\Models\BusinessAddress;
 use App\Models\BusinessCustomHour;
 use App\Models\Category;
+use App\Models\OldBusiness;
 use App\Models\RefCountry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -228,5 +229,49 @@ class BusinessController extends Controller
         }
 
         return response()->json(['html' => $html]);
+    }
+
+    public function old_business_list()
+    {
+        $old_businesses = OldBusiness::leftjoin('categories', 'old_businesses.category_id', '=', 'categories.category_id')
+            ->select('old_businesses.*', 'categories.cat_name as category_name')->paginate(10);
+        return view('old_business.index', compact('old_businesses'));
+    }
+
+    public function edit_old_business($id)
+    {
+        $decrypt_id = Crypt::decrypt($id);
+        $edit_old_business = OldBusiness::leftjoin('old_categories', 'old_businesses.category_id', '=', 'old_categories.old_category_id')
+            ->select('old_businesses.*', 'old_categories.cat_name as category_name')
+            ->where('old_businesses.old_business_id', $decrypt_id)->first();
+
+        $name_parts = explode(' ', trim($edit_old_business->name), 2);
+        $edit_old_business->first_name = $name_parts[0] ?? '';
+        $edit_old_business->last_name  = $name_parts[1] ?? '';
+
+        // Normalize URL for form display
+        $url = trim($edit_old_business->url);
+
+        // Ensure scheme exists (parse_url fails without it)
+        if (!preg_match('#^https?://#', $url)) {
+            $url = 'http://' . $url;
+        }
+
+        $parsed = parse_url($url);
+
+        $host = $parsed['host'] ?? '';
+        $scheme = 'https';
+
+        // Final normalized URL (protocol + domain only)
+        $edit_old_business->display_url = $host
+            ? $scheme . '://' . $host
+            : '';
+
+        //Split email into username and domain
+        $email_parts = explode('@', $edit_old_business->mail, 2);
+
+        $edit_old_business->email_username = $email_parts[0] ?? '';
+        $edit_old_business->email_domain   = $email_parts[1] ?? 'gmail.com';
+        return view('old_business.edit', compact('edit_old_business'));
     }
 }

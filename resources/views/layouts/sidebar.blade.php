@@ -83,6 +83,17 @@
                         </div>
                     </a>
                 </li>
+                <li>
+                    <a class="nav-link {{ request()->is('old-business-list') ? 'active' : '' }} || {{ request()->is('edit-old-business/*') ? 'active' : '' }}"
+                        href="{{ route('old_business_list') }}" role="button">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon">
+                                <span class="bi-shield-lock"></span>
+                            </span>
+                            <span class="nav-link-text ps-1">Old Business</span>
+                        </div>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

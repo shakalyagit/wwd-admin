@@ -16,6 +16,14 @@ if (!function_exists('status_badge')) {
                 $class = 'badge badge rounded-pill d-block p-2 badge-subtle-danger border border-danger';
                 $text = 'Reject';
                 break;
+            case 'no':
+                $class = 'badge badge rounded-pill d-block p-2 badge-subtle-warning border border-warning';
+                $text = 'No';
+                break;
+            case 'yes':
+                $class = 'badge badge rounded-pill d-block p-2 badge-subtle-success border border-success';
+                $text = 'Yes';
+                break;
             default:
                 $class = 'badge badge rounded-pill d-block p-2 badge-subtle-dark border border-dark';
                 $text = 'N/A';
