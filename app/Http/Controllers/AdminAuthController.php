@@ -40,7 +40,7 @@ class AdminAuthController extends Controller
         $user = User::where('email', $email)->first();
 
         if ($user && Hash::check($password, $user->password)) {
-            if ($user->is_active == 1) {
+            if ($user->is_active == 1 && $user->is_admin == 1) {
                 Auth::login($user);
                 return redirect()->intended('dashboard');
             } else {

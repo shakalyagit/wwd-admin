@@ -38,35 +38,35 @@
             <div class="card-header bg-300">
                 <h5 class="card-title">Business information</h5>
             </div>
-            <form action="{{ route('edit_business_action', $edit_business->business_id) }}" method="POST" id="edit_business_form"
+            <form action="{{ route('edit_business_action', $edit_business->business_id) }}" method="POST" id="business_form"
                 enctype="multipart/form-data">
                 @csrf
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Business email <span class="text-danger">*</span></label>
+                                <label class="form-label">Business email</label>
                                 <input type="text" class="form-control" name="business_email"
-                                    value="{{ $edit_business->business_email }}" id="business_email">
+                                    value="{{ $edit_business->business_email }}" id="business_email" readonly>
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Business name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="business_name" id="business_name" value="{{$edit_business->business_name}}">
+                                <label class="form-label">Business name</label>
+                                <input type="text" class="form-control" name="business_name" id="business_name" value="{{$edit_business->business_name}}" readonly>
                             </div>
                         </div>
                         <div class="col-md-6 md-3">
                             <div class="form-group">
-                                <label class="form-label">Business website <span class="text-danger">*</span></label>
+                                <label class="form-label">Business website</label>
                                 <input type="text" class="form-control" name="business_website"
                                     value="{{ $edit_business->business_website }}" id="business_website">
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Category <span class="text-danger">*</span></label>
-                                <select name="category_id" class="form-select">
+                                <label class="form-label">Category</label>
+                                <select name="category_id" id="" class="form-select">
                                     <option value="" disabled selected>Select category</option>
                                     @foreach($parents as $parent)
                                     <option value="{{ $parent->category_id }}" {{ $edit_business->category_id == $parent->category_id ? 'selected' : '' }}>{{ $parent->cat_name }}</option>
@@ -79,7 +79,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Country code <span class="text-danger">*</span></label>
+                                <label class="form-label">Country code</label>
                                 <select name="country_code" id="country_code" class="form-select">
                                     <option value="">Select Country Code</option>
                                     @foreach($countries as $country)
@@ -95,7 +95,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Business phone <span class="text-danger">*</span></label>
+                                <label class="form-label">Business phone</label>
                                 <input type="text" class="form-control" name="business_phone"
                                     value="{{ $edit_business->business_phone }}" id="business_phone">
                             </div>
@@ -147,14 +147,14 @@
             <div class="card-header bg-300">
                 <h5 class="card-title">Address information</h5>
             </div>
-            <form action="{{ route('edit_business_address_action', $business_address->business_id) }}" method="POST" id="edit_business_address_form"
+            <form action="{{ route('edit_business_address_action', $business_address->business_id) }}" method="POST" id="update_address"
                 enctype="multipart/form-data">
                 @csrf
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Address Line 1 <span class="text-danger">*</span></label>
+                                <label class="form-label">Address Line 1</label>
                                 <input type="text" class="form-control" name="street_line_1"
                                     value="{{ $business_address->street_line_1 }}" id="street_line_1">
                             </div>
@@ -167,28 +167,28 @@
                         </div>
                         <div class="col-md-6 md-3">
                             <div class="form-group">
-                                <label class="form-label">City <span class="text-danger">*</span></label>
+                                <label class="form-label">City</label>
                                 <input type="text" class="form-control" name="city"
                                     value="{{ $business_address->city }}" id="city">
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Province/State/Territory <span class="text-danger">*</span></label>
+                                <label class="form-label">Province/State/Territory</label>
                                 <input type="text" class="form-control" name="province_state_territory"
                                     value="{{ $business_address->province_state_territory }}" id="province_state_territory">
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Postal code <span class="text-danger">*</span></label>
+                                <label class="form-label">Postal code</label>
                                 <input type="text" class="form-control" name="postal_code"
                                     value="{{ $business_address->postal_code }}" id="postal_code">
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Country <span class="text-danger">*</span></label>
+                                <label class="form-label">Country</label>
                                 <select name="ref_country_id" id="ref_country_id" class="form-select">
                                     <option value="">Select Country</option>
                                     @foreach($ref_countries as $country)
@@ -213,7 +213,7 @@
             <div class="card-header bg-300">
                 <h5 class="card-title">Hours information</h5>
             </div>
-            <form method="POST" action="{{route('edit_business_hours_action', $edit_business->business_id)}}" id="business_hours_form">
+            <form method="POST" action="{{route('edit_business_hours_action', $edit_business->business_id)}}" id="hours_form">
                 @csrf
                 <table class="table table-hover my-business">
                     <thead>

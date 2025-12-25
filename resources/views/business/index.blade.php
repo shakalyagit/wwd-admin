@@ -30,7 +30,7 @@
                         <th class="text-900 sort text-nowrap noExl">Action</th>
                     </tr>
                 </thead>
-                <tbody id="risk_register_filter_data">
+                <tbody id="business_filter_data">
                     @if (count($business) > 0)
                     @foreach ($business as $value)
                     <tr>
@@ -71,143 +71,29 @@
     </div>
 
 </div>
-{{-- @include('business.off_canvas') --}}
+@include('business.off_canvas')
 @endsection
 @section('scripts')
-<script src="{{ asset('assets') }}/js/jquery.table2excel.js"></script>
 <script>
     $(document).ready(function() {
-        // Entity -> Sub Entity
-        $('#entity').on('change', function() {
-            var entity_id = $(this).val();
-            $('#sub_entity').html('<option value="">Loading...</option>');
+        $('#business_filter').on('submit', function(e) {
+            e.preventDefault();
 
-            if (entity_id) {
-                $.ajax({
-                    url: '/get-sub-entities/' + entity_id,
-                    type: 'GET',
-                    success: function(data) {
-                        $('#sub_entity').empty().append(
-                            '<option value="">Select Sub Entity</option>');
-                        $.each(data, function(id, name) {
-                            $('#sub_entity').append('<option value="' + id + '">' +
-                                name + '</option>');
-                        });
-                    }
-                });
-            } else {
-                $('#sub_entity').html('<option value="">Select Sub Entity</option>');
-            }
-        });
-
-        // Process -> Sub Process
-        $('#process').on('change', function() {
-            var process_id = $(this).val();
-            $('#sub_process').html('<option value="">Loading...</option>');
-
-            if (process_id) {
-                $.ajax({
-                    url: '/get-sub-processes/' + process_id,
-                    type: 'GET',
-                    success: function(data) {
-                        $('#sub_process').empty().append(
-                            '<option value="">Select Sub Process</option>');
-                        $.each(data, function(id, name) {
-                            $('#sub_process').append('<option value="' + id + '">' +
-                                name + '</option>');
-                        });
-                    }
-                });
-            } else {
-                $('#sub_process').html('<option value="">Select Sub Process</option>');
-            }
-        });
-
-        // Risk Type -> Risk Sub Type
-        $('#risk_type').on('change', function() {
-            var risk_sub_type_id = $(this).val();
-            $('#risk_sub_type').html('<option value="">Loading...</option>');
-
-            if (risk_sub_type_id) {
-                $.ajax({
-                    url: '/get-risk-sub-type/' + risk_sub_type_id,
-                    type: 'GET',
-                    success: function(data) {
-                        $('#risk_sub_type').empty().append(
-                            '<option value="">Select Sub Process</option>');
-                        $.each(data, function(id, name) {
-                            $('#risk_sub_type').append('<option value="' + id +
-                                '">' + name + '</option>');
-                        });
-                    }
-                });
-            } else {
-                $('#risk_sub_type').html('<option value="">Select Sub Process</option>');
-            }
-        });
-
-        $('#export_risk_excel').on('click', function() {
-            var date = new Date();
-            var formatted_date = date.getDate() + "_" +
-                String(date.getMonth() + 1).padStart(2, '0') + "_" +
-                String(date.getFullYear()).padStart(2, '0');
-
-            $(".tableToExport").table2excel({
-                exclude: ".noExl",
-                name: 'risk_register_report_' + formatted_date,
-                filename: 'risk_register_report_' + formatted_date,
+            $.ajax({
+                url: "{{ route('business_list_filter') }}",
+                type: "GET",
+                data: $(this).serialize(),
+                success: function(res) {
+                    $('#business_filter_data').html(res.html);
+                    // $(".pagination-wrapper").html(response.pagination);
+                    $('.filter-loader').hide();
+                    var off_canvas_element = document.getElementById('filterOffcanvas');
+                    var off_canvas_instance = bootstrap.Offcanvas.getInstance(off_canvas_element);
+                    off_canvas_instance.hide();
+                }
             });
         });
     });
-
-    //Risk register filter
-    let filterApplied = false;
-    $('#risk_register_filter').submit(function(e) {
-        e.preventDefault();
-        filterApplied = true;
-        load_risk_data(1);
-    });
-
-    $(document).on('click', '.pagination a', function(e) {
-        e.preventDefault();
-        let href = $(this).attr('href');
-        let page = href.split('page=')[1];
-
-        if (!filterApplied) {
-            window.location.href = href;
-        } else {
-            load_risk_data(page);
-        }
-    });
-
-    function load_risk_data(page) {
-        $('.filter-loader').show();
-        $('#risk_register_filter_data').hide();
-        let formData = $('#risk_register_filter').serialize();
-        $.ajax({
-            type: "GET",
-            url: `/risk-register-filter?page=${page}`,
-            data: formData,
-            success: function(response) {
-                $("#risk_register_filter_data").html(response.html);
-                $(".pagination-wrapper").html(response.pagination);
-                $('#risk_register_filter_data').show();
-                $('.filter-loader').hide();
-                var off_canvas_element = document.getElementById('filterOffcanvas');
-                var off_canvas_instance = bootstrap.Offcanvas.getInstance(off_canvas_element);
-                off_canvas_instance.hide();
-            }
-        });
-    }
-
-    $(document).ready(function() {
-        var selected_year = $('#financial_year option:selected').text();
-        $('#current-financial-year').text(selected_year);
-
-        $('#financial_year').change(function() {
-            var selected_year = $(this).find('option:selected').text();
-            $('#current-financial-year').text(selected_year);
-        });
-    });
 </script>
+
 @endsection

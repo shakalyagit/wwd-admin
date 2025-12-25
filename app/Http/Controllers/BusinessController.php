@@ -8,6 +8,7 @@ use App\Models\BusinessCustomHour;
 use App\Models\Category;
 use App\Models\RefCountry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 
 use function Laravel\Prompts\select;
 
@@ -17,7 +18,10 @@ class BusinessController extends Controller
     {
         $business = Business::leftjoin('categories', 'businesses.category_id', '=', 'categories.category_id')
             ->select('businesses.*', 'categories.cat_name as category_name')->paginate(10);
-        return view('business.index', compact('business'));
+        $categories = Category::get();
+        $parents = $categories->where('parent_cat_id', 0);
+        $children = $categories->where('parent_cat_id', '!=', 0);
+        return view('business.index', compact('business', 'categories', 'parents', 'children'));
     }
 
     public function edit_business($id)
@@ -150,5 +154,79 @@ class BusinessController extends Controller
         ]);
 
         return redirect()->route('business_list')->with('success', 'Business rejected successfully.');
+    }
+
+    public function business_list_filter(Request $request)
+    {
+        $query = Business::leftJoin('categories', 'businesses.category_id', '=', 'categories.category_id')
+            ->select('businesses.*', 'categories.cat_name as category_name');
+
+        if ($request->filled('business_verified')) {
+            $query->where('businesses.is_claimed', $request->business_verified);
+        }
+
+        if ($request->filled('admin_verified')) {
+            $query->where('businesses.is_admin_verified', $request->admin_verified);
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('businesses.category_id', $request->category_id);
+        }
+
+        if ($request->filled('business_url')) {
+            $query->where('businesses.business_website', 'like', '%' . $request->business_url . '%');
+        }
+
+        if ($request->filled('business_email')) {
+            $query->where('businesses.business_email', 'like', '%' . $request->business_email . '%');
+        }
+
+        if ($request->filled('payment_status')) {
+            $query->where('businesses.business_status', $request->payment_status);
+        }
+
+        $businesses = $query->get();
+
+        $html = '';
+
+        if ($businesses->count()) {
+            foreach ($businesses as $row) {
+
+                $edit_url = route('edit_business', Crypt::encrypt($row->business_id));
+                $view_url = $row->business_website;
+                $html .= '<tr>';
+                $html .= '<td>' . date('d-m-Y', strtotime($row->created_at)) . '</td>';
+                $html .= '<td>' . e($row->business_name) . '</td>';
+                $html .= '<td>' . e($row->business_email) . '</td>';
+                $html .= '<td>' . e($row->category_name) . '</td>';
+                $html .= '<td>' . status_badge($row->is_claimed) . '</td>';
+                $html .= '<td>' . status_badge($row->is_admin_verified) . '</td>';
+
+                $html .= '<td class="text-nowrap">
+                    <a class="badge bg-info rounded rounded-circle"
+                        style="padding-top:7px;padding-bottom:7px;"
+                        href="' . $edit_url . '"
+                        title="Edit business">
+                        <i class="bi bi-pencil fs-9"></i>
+                    </a>
+
+                    <a class="badge bg-warning rounded rounded-circle"
+                        style="padding-top:7px;padding-bottom:7px;"
+                        href="' . $view_url . '"
+                        target="_blank"
+                        title="View site">
+                        <i class="bi bi-eye fs-9"></i>
+                    </a>
+                </td>';
+
+                $html .= '</tr>';
+            }
+        } else {
+            $html .= '<tr>
+            <td colspan="7" class="text-center">' . no_record_found_in_table() . '</td>
+        </tr>';
+        }
+
+        return response()->json(['html' => $html]);
     }
 }
