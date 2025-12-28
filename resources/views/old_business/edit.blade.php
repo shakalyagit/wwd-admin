@@ -107,7 +107,7 @@
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
                                 <label class="form-label">New Business Category</label>
-                                <select name="new_category_id" class="form-select">
+                                <select name="new_category_id" class="form-select" required>
                                     <option value="">Select category</option>
                                     @foreach($parents as $parent)
                                     <option value="{{ $parent->category_id }}">
@@ -124,6 +124,7 @@
                         </div>
                         <div class="col-md-12 mb-3">
                             <button type="submit" class="btn btn-primary">Update & Approve</button>
+                            <a href="javascript:void(0);" onclick="return confirm('Are you sure you want to delete this?')" id="delete_old_business" class="btn btn-outline-danger ms-2"><i class="bi bi-trash"></i>Delete</a>
                         </div>
                     </div>
                 </div>
@@ -170,6 +171,23 @@
                 }
             });
         });
+
+        $('#delete_old_business').click(function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: "{{ route('delete_old_business', $edit_old_business->old_business_id) }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                success: function(res) {
+                    if (res.status === 'success') {
+                        window.location.href = "{{ route('old_business_list') }}";
+                    }
+                }
+            });
+        })
 
     });
 </script>

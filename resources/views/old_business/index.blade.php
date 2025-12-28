@@ -16,7 +16,6 @@
                 <thead class="bg-200">
                     <tr>
                         <th class="text-900 sort text-nowrap">Submission date</th>
-                        <th class="text-900 sort text-nowrap">Business name</th>
                         <th class="text-900 sort text-nowrap">Business URL</th>
                         <th class="text-900 sort text-nowrap noExl">Action</th>
                     </tr>
@@ -26,7 +25,6 @@
                     @foreach ($old_businesses as $value)
                     <tr>
                         <td class="text-nowrap">{{ date('d-m-Y', strtotime($value->stime)) }}</td>
-                        <td class="text-nowrap">{{ $value->caption }}</td>
                         <td class="text-nowrap">{{ $value->url }}</td>
                         <td class="text-nowrap">
                             <a class="badge bg-info rounded rounded-circle"

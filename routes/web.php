@@ -27,6 +27,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('edit-old-business/{old_business_id}', [BusinessController::class, 'edit_old_business'])->name('edit_old_business');
     Route::post('/old-business-action/{old_business_id}', [BusinessController::class, 'old_business_action'])->name('old_business_action');
     Route::post('/check-business', [BusinessController::class, 'check_business'])->name('check_business');
+    Route::post('/delete-old-business/{old_business_id}', [BusinessController::class, 'delete_old_business'])->name('delete_old_business');
 });
 
 Route::group(['middleware' => 'guest'], function () {

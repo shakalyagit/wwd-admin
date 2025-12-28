@@ -37,7 +37,7 @@ $(document).ready(function () {
         },
         // Customizing error message placement
         errorPlacement: function (error, element) {
-            if (element.is("textarea") || element.is("input[type='text']")) {
+            if (element.is("textarea") || element.is("input[type='text']") || element.is("select")) {
                 error.insertAfter(element);
             } else {
                 error.insertBefore(element);

@@ -441,4 +441,12 @@ class BusinessController extends Controller
             'errors' => $errors
         ]);
     }
+
+    public function delete_old_business($id)
+    {
+        OldBusiness::where('old_business_id', $id)->delete();
+        session()->flash('success', 'Old Business deleted successfully.');
+
+        return response()->json(['status' => 'success', 'success' => 'Old Business deleted successfully.']);
+    }
 }
