@@ -15,11 +15,9 @@
             <table class="table mb-0 data-table fs-10 tableToExport">
                 <thead class="bg-200">
                     <tr>
+                        <th class="text-900 sort text-nowrap">Submission date</th>
                         <th class="text-900 sort text-nowrap">Business name</th>
-                        <th class="text-900 sort text-nowrap">Email</th>
                         <th class="text-900 sort text-nowrap">Business URL</th>
-                        <th class="text-900 sort text-nowrap">Category name</th>
-                        <th class="text-900 sort text-nowrap">Approved</th>
                         <th class="text-900 sort text-nowrap noExl">Action</th>
                     </tr>
                 </thead>
@@ -27,11 +25,9 @@
                     @if (count($old_businesses) > 0)
                     @foreach ($old_businesses as $value)
                     <tr>
+                        <td class="text-nowrap">{{ date('d-m-Y', strtotime($value->stime)) }}</td>
                         <td class="text-nowrap">{{ $value->caption }}</td>
-                        <td class="text-nowrap">{{ $value->mail }}</td>
                         <td class="text-nowrap">{{ $value->url }}</td>
-                        <td class="text-nowrap">{{ $value->category_name }}</td>
-                        <td class="text-nowrap">{!! status_badge($value->approved) !!}</td>
                         <td class="text-nowrap">
                             <a class="badge bg-info rounded rounded-circle"
                                 style="padding-top: 7px; padding-bottom: 7px;"

@@ -34,6 +34,30 @@
             </div>
             <div class="mb-3">
                 <div class="form-group">
+                    <label class="form-label">Is admin posted</label>
+                    <select name="is_admin_posted" class="form-select">
+                        <option value="">Select</option>
+                        <option value="0">User posted</option>
+                        <option value="1">Admin posted</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">From date</label>
+                        <input type="date" name="from_date" class="form-control">
+                    </div>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">To date</label>
+                        <input type="date" name="to_date" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group">
                     <label class="form-label">Business Email</label>
                     <input type="text" name="business_email" class="form-control">
                 </div>
