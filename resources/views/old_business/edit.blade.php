@@ -24,7 +24,6 @@
             <div class="card">
                 <div class="card-header bg-300 d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">Business information</h5>
-
                     <button type="button"
                         class="btn btn-outline-primary"
                         id="check-business">
@@ -136,9 +135,7 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-
         $('#check-business').on('click', function() {
-
             $('#caption-error').addClass('d-none');
             $('#url-error').addClass('d-none');
             $('#check-success').addClass('d-none');

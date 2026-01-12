@@ -2,7 +2,7 @@
 @section('content')
 <div class="content-header">
     <h5 class="pull-left">Business List</h5>
-
+    <a href="{{route('business_create')}}" class="btn btn-primary pull-right"><i class="bi bi-plus"></i> Add Business</a>
     <div class="clear"></div>
 </div>
 <x-flash />
@@ -10,7 +10,8 @@
     <div class="card-header">
         <div class="ms-auto pull-left">
             <a href="{{ route('business_list') }}" title="Refresh" style="color: #5E6E82;"><span
-                    class="bi bi-arrow-clockwise fs-6 cursor-pointer"></span></a>
+                    class="bi bi-arrow-clockwise fs-6 cursor-pointer"></span>
+            </a>
             <span class="bi bi-funnel fs-6 cursor-pointer" title="Filter" data-bs-toggle="offcanvas"
                 data-bs-target="#filterOffcanvas"></span>
         </div>

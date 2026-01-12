@@ -56,6 +56,13 @@ return [
             'throw' => false,
         ],
 
+        'shared' => [
+            'driver' => 'local',
+            'root' => public_path('../../wwdbucket'),
+            'url' => env('UPLOAD_URL'),
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\RiskRegisterController;
+use App\Livewire\AddBusiness;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth'], function () {
@@ -13,14 +14,23 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Business Listing Route
     Route::get('business-list', [BusinessController::class, 'business_list'])->name('business_list');
+    // Route::get('add-business', [BusinessController::class, 'add_business'])->name('add_business');
     Route::get('edit-business/{business_id}', [BusinessController::class, 'edit_business'])->name('edit_business');
     Route::post('edit-business-action/{business_id}', [BusinessController::class, 'edit_business_action'])->name('edit_business_action');
     Route::post('edit-business-address-action/{business_id}', [BusinessController::class, 'edit_business_address_action'])->name('edit_business_address_action');
     Route::post('edit-business-hours-action/{business_id}', [BusinessController::class, 'edit_business_hours_action'])->name('edit_business_hours_action');
     Route::post('edit-user-action/{business_id}', [BusinessController::class, 'edit_user_action'])->name('edit_user_action');
+    Route::post('edit-business-logo-action/{business_id}', [BusinessController::class, 'edit_business_logo_action'])->name('edit_business_logo_action');
     Route::post('/business/{business}/approve', [BusinessController::class, 'business_approve'])->name('business_approve');
     Route::post('/business/{business}/reject', [BusinessController::class, 'business_reject'])->name('business_reject');
     Route::get('/business-list-filter', [BusinessController::class, 'business_list_filter'])->name('business_list_filter');
+    Route::post('/check-new-business', [BusinessController::class, 'check_new_business'])->name('check_new_business');
+
+    Route::get('/business/create', [BusinessController::class, 'business_create'])->name('business_create');
+    Route::post('/business/store', [BusinessController::class, 'business_store'])->name('business_store');
+    Route::post('/business/address', [BusinessController::class, 'business_address'])->name('business_address');
+    Route::post('/business/logo', [BusinessController::class, 'business_logo'])->name('business_logo');
+
 
     //Old Business Listing Route
     Route::get('old-business-list', [BusinessController::class, 'old_business_list'])->name('old_business_list');
