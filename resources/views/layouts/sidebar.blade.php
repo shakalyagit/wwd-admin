@@ -73,6 +73,17 @@
                     </a>
                 </li>
                 <li>
+                    <a class="nav-link {{ request()->is('users') ? 'active' : '' }}"
+                        href="{{ route('users') }}" role="button">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon">
+                                <span class="bi bi-people"></span>
+                            </span>
+                            <span class="nav-link-text ps-1">Users</span>
+                        </div>
+                    </a>
+                </li>
+                <li>
                     <a class="nav-link {{ request()->is('business-list') ? 'active' : '' }} || {{ request()->is('edit-business/*') ? 'active' : '' }}"
                         href="{{ route('business_list') }}" role="button">
                         <div class="d-flex align-items-center">

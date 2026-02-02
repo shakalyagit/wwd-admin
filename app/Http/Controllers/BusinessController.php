@@ -428,6 +428,7 @@ class BusinessController extends Controller
             $new_user->last_name = $request->last_name;
             $new_user->email = $email;
             $new_user->password = Hash::make('12345678');
+            $new_user->last_login_at = Carbon::now();
             $new_user->save();
 
             $new_business = new Business();

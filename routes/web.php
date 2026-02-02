@@ -3,7 +3,9 @@
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\RiskRegisterController;
+use App\Http\Controllers\UserController;
 use App\Livewire\AddBusiness;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth'], function () {
@@ -31,6 +33,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/business/address', [BusinessController::class, 'business_address'])->name('business_address');
     Route::post('/business/logo', [BusinessController::class, 'business_logo'])->name('business_logo');
 
+    Route::get('/users', [UserController::class, 'users'])->name('users');
+    Route::post('/users-status-update', [UserController::class, 'users_status_update'])->name('users_status_update');
+    Route::get('/user-list-filter', [UserController::class, 'user_list_filter'])->name('user_list_filter');
 
     //Old Business Listing Route
     Route::get('old-business-list', [BusinessController::class, 'old_business_list'])->name('old_business_list');

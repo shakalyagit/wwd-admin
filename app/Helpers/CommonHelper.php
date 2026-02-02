@@ -32,6 +32,28 @@ if (!function_exists('status_badge')) {
         return '<span class="' . $class . '">' . $text . '</span>';
     }
 }
+
+if (!function_exists('users_status')) {
+    function users_status($status)
+    {
+        switch ($status) {
+            case 1:
+                $class = 'badge badge rounded-pill d-block p-2 badge-subtle-success border border-success';
+                $text = 'Active';
+                break;
+            case 0:
+                $class = 'badge badge rounded-pill d-block p-2 badge-subtle-danger border border-danger';
+                $text = 'Inactive';
+                break;
+            default:
+                $class = 'badge badge rounded-pill d-block p-2 badge-subtle-dark border border-dark';
+                $text = 'N/A';
+                break;
+        }
+        return '<span class="' . $class . '">' . $text . '</span>';
+    }
+}
+
 if (!function_exists('payment_badge')) {
     function payment_badge($status)
     {
