@@ -2,7 +2,6 @@
 @section('content')
 <div class="content-header">
     <h5 class="pull-left">Users List</h5>
-    <a href="{{route('business_create')}}" class="btn btn-primary pull-right"><i class="bi bi-plus"></i> Add Business</a>
     <div class="clear"></div>
 </div>
 <x-flash />
@@ -37,12 +36,16 @@
                     <tr>
                         <td class="text-nowrap">{{ $value->first_name .' '. $value->last_name }}</td>
                         <td class="text-nowrap">{{ $value->email }}</td>
-                        <td class="text-nowrap">{{ $value->business_website }}</td>
+                        <td class="text-nowrap">
+                            <a href="{{ $value->business_website }}" target="_blank">
+                                {{ $value->business_website }}
+                            </a>
+                        </td>
                         <td class="text-nowrap">{{ date('d-m-Y', strtotime($value->created_at)) }}</td>
                         <td class="text-nowrap">{{ date('d-m-Y H:i:s', strtotime($value->last_login_at)) }}</td>
                         <td class="text-nowrap">{!! status_badge($value->is_claimed) !!}</td>
                         <td class="text-nowrap">
-                            <span onclick="return confirm('Are you sure you want to change status?')" class="user-status-toggle" data-id="{{ $value->id }}" style="cursor:pointer"> {!! users_status($value->status) !!} </span>
+                            <span class="user-status-toggle" data-id="{{ $value->id }}" style="cursor:pointer"> {!! users_status($value->status) !!} </span>
                         </td>
                     </tr>
                     @endforeach
@@ -63,28 +66,59 @@
             </div>
         </div>
     </div>
-@include('users.off_canvas')
+    @include('users.off_canvas')
+</div>
+<div class="modal fade" id="confirmStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                Are you sure you want to change this user's status?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmStatusBtn">
+                    Ok
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 @section('scripts')
 <script>
+    let selectedEl = null;
+    let selectedUserId = null;
+
     $(document).on('click', '.user-status-toggle', function() {
+        selectedEl = $(this);
+        selectedUserId = selectedEl.data('id');
 
-        let el = $(this);
-        let userId = el.data('id');
+        $('#confirmStatusModal').modal('show');
+    });
 
+    $('#confirmStatusBtn').on('click', function() {
         $.ajax({
             url: "{{ route('users_status_update') }}",
             type: "POST",
             data: {
                 _token: "{{ csrf_token() }}",
-                user_id: userId
+                user_id: selectedUserId
             },
             success: function(response) {
-                el.html(response.badge);
+                selectedEl.html(response.badge);
+                $('#confirmStatusModal').modal('hide');
             }
         });
     });
+
 
     // User filter
     let filterApplied = false;
@@ -101,10 +135,9 @@
 
         if (!filterApplied) {
             window.location.href = href;
-        } else {
-            }
-        });
-        load_risk_data(page);
+        } else {}
+    });
+    load_risk_data(page);
 
     function load_risk_data(page) {
         $('.filter-loader').show();

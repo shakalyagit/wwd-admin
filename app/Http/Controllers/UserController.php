@@ -56,13 +56,17 @@ class UserController extends Controller
                 $html .= '<tr>';
                 $html .= '<td>' . e($row->first_name . ' ' . $row->last_name) . '</td>';
                 $html .= '<td>' . e($row->email) . '</td>';
-                $html .= '<td>' . e($row->business_website) . '</td>';
+                $html .= '<td>
+                            <a href="' . e($row->business_website) . '" target="_blank" rel="noopener noreferrer">
+                                ' . e($row->business_website) . '
+                            </a>
+                        </td>';
                 $html .= '<td>' . date('d-m-Y', strtotime($row->created_at)) . '</td>';
                 $html .= '<td>' . date('d-m-Y H:i:s', strtotime($row->last_login_at)) . '</td>';
                 $html .= '<td>' . status_badge($row->is_claimed) . '</td>';
 
                 $html .= '<td class="text-nowrap">
-                    <span onclick="return confirm(\'Are you sure you want to change status?\')" class="user-status-toggle" data-id="' . $row->id . '" style="cursor:pointer"> ' . users_status($row->status) . ' </span>
+                    <span class="user-status-toggle" data-id="' . $row->id . '" style="cursor:pointer"> ' . users_status($row->status) . ' </span>
                 </td>';
 
                 $html .= '</tr>';
