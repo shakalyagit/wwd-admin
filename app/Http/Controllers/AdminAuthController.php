@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Webhook;
+use App\Models\Business;
 use App\Models\DivisionMst;
 use App\Models\FinancialYear;
 use App\Models\RiskRegister;
 use App\Models\User;
 use App\Models\UserDivisionMapping;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,35 @@ class AdminAuthController extends Controller
 {
     public function dashboard()
     {
-        return view('index');
+        $total_business = Business::count();
+        $verified_business = Business::where('is_claimed', 1)->count();
+        $unverified_business = Business::where('is_claimed', 0)->count();
+        $todays_business = Business::whereDate('created_at', Carbon::today())->count();
+        $approved_business = Business::where('is_admin_verified', 1)->count();
+        $featured_business = Business::where('business_status', 'P')->count();
+
+        $dates = [];
+        $total_submissions = [];
+        $paid_submissions = [];
+
+        $start_date = Carbon::today()->subDays(9);
+        $end_date   = Carbon::today();
+
+        for ($i = 9; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i)->format('Y-m-d');
+
+            $dates[] = Carbon::parse($date)->format('d M');
+
+            // Total business submissions
+            $total_submissions[] = Business::whereDate('created_at', $date)->count();
+
+            // Paid businesses
+            $paid_submissions[] = Business::whereDate('created_at', $date)
+                ->where('business_status', 'P')
+                ->count();
+        }
+
+        return view('index', compact('total_business', 'verified_business', 'unverified_business', 'todays_business', 'approved_business', 'featured_business', 'dates', 'total_submissions', 'paid_submissions', 'start_date', 'end_date'));
     }
 
     public function admin_login()
