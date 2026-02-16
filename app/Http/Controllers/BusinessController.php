@@ -226,10 +226,15 @@ class BusinessController extends Controller
 
         file_put_contents(Storage::disk('shared')->path($path), $image);
 
-        $media = Media::where('ref_id', $edit_business->business_id)->first();
-        $media->file_name = $fileName;
-        $media->file_path = $fileName;
-        $media->save();
+        Media::updateOrCreate(
+            ['ref_id' => $edit_business->business_id],
+            [
+                'file_name' => $fileName,
+                'file_path' => $fileName,
+                'ref_table' => 'businesses',
+                'file_type' => 'logo'
+            ]
+        );
 
         return redirect()->back()->with('success', 'Business logo updated successfully.');
     }

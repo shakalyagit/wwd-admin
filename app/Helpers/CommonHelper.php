@@ -66,6 +66,10 @@ if (!function_exists('payment_badge')) {
                 $class = 'badge badge rounded-pill d-block p-2 badge-subtle-success border border-success';
                 $text = 'Paid';
                 break;
+            case 'C':
+                $class = 'badge badge rounded-pill d-block p-2 badge-subtle-danger border border-danger';
+                $text = 'Cancel';
+                break;
             default:
                 $class = 'badge badge rounded-pill d-block p-2 badge-subtle-dark border border-dark';
                 $text = 'N/A';
