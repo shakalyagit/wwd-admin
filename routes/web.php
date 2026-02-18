@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\RiskRegisterController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
 use App\Livewire\AddBusiness;
 use App\Models\User;
@@ -43,6 +44,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/old-business-action/{old_business_id}', [BusinessController::class, 'old_business_action'])->name('old_business_action');
     Route::post('/check-business', [BusinessController::class, 'check_business'])->name('check_business');
     Route::post('/delete-old-business/{old_business_id}', [BusinessController::class, 'delete_old_business'])->name('delete_old_business');
+
+    Route::get('subscriptions', [SubscriptionController::class, 'subscriptions'])->name('subscriptions');
+    Route::get('/subscriptions/{id}/transactions',[SubscriptionController::class, 'view_transactions'])->name('view_transactions');
+    Route::post('/subscriptions/filter', [SubscriptionController::class, 'subscriptions_filter'])->name('subscriptions_filter');
 });
 
 Route::group(['middleware' => 'guest'], function () {
