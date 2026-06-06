@@ -48,6 +48,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('subscriptions', [SubscriptionController::class, 'subscriptions'])->name('subscriptions');
     Route::get('/subscriptions/{id}/transactions',[SubscriptionController::class, 'view_transactions'])->name('view_transactions');
     Route::post('/subscriptions/filter', [SubscriptionController::class, 'subscriptions_filter'])->name('subscriptions_filter');
+
+    // Category Count Routes
+    Route::get('category-count', [BusinessController::class, 'category_count'])->name('category_count');
+    Route::get('category/{category_id}/businesses', [BusinessController::class, 'category_businesses'])->name('category_businesses');
 });
 
 Route::group(['middleware' => 'guest'], function () {

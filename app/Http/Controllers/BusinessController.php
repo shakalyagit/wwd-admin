@@ -449,6 +449,35 @@ class BusinessController extends Controller
             $new_business->created_at = now();
             $new_business->save();
 
+            // Insert default business custom hours: 10am to 8pm Monday-Friday, closed Saturday-Sunday
+            $day_names = [
+                1 => 'Sunday',
+                2 => 'Monday',
+                3 => 'Tuesday',
+                4 => 'Wednesday',
+                5 => 'Thursday',
+                6 => 'Friday',
+                7 => 'Saturday',
+            ];
+
+            foreach (range(1, 7) as $day) {
+                $isClosed = ($day === 1 || $day === 7);
+                BusinessCustomHour::updateOrInsert(
+                    [
+                        'business_id' => $new_business->business_id,
+                        'day_of_week' => $day,
+                    ],
+                    [
+                        'name'       => $day_names[$day],
+                        'is_closed'  => $isClosed ? 1 : 0,
+                        'start_ts'   => $isClosed ? null : '10:00:00',
+                        'end_ts'     => $isClosed ? null : '20:00:00',
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]
+                );
+            }
+
             Mail::to($email)->send(new BusinessApprovedMail($new_business, $new_user));
 
             // Delete old business
@@ -787,5 +816,47 @@ class BusinessController extends Controller
 
         return redirect()->route('business_list')
             ->with('success', 'Business created successfully');
+    }
+
+    public function category_count(Request $request)
+    {
+        $search = $request->input('search');
+
+        $categories = Category::select('categories.*')
+            ->selectSub(function ($q) {
+                $q->from('businesses')
+                    ->whereColumn('businesses.category_id', 'categories.category_id')
+                    ->where('is_admin_verified', 1)
+                    ->selectRaw('count(*)');
+            }, 'approved_businesses_count')
+            ->get();
+
+        $parents = $categories->where('parent_cat_id', 0);
+        $children = $categories->where('parent_cat_id', '!=', 0);
+
+        if (!empty($search)) {
+            $children = $children->filter(function ($child) use ($search, $parents) {
+                $parentName = $parents->where('category_id', $child->parent_cat_id)->first()?->cat_name ?? '';
+                return stripos($child->cat_name, $search) !== false
+                    || stripos($parentName, $search) !== false;
+            });
+        }
+
+        return view('business.category_count', compact('parents', 'children', 'search'));
+    }
+
+    public function category_businesses($category_id)
+    {
+        $category = Category::leftJoin('categories as parent', 'categories.parent_cat_id', '=', 'parent.category_id')
+            ->select('categories.*', 'parent.cat_name as parent_cat_name')
+            ->where('categories.category_id', $category_id)
+            ->firstOrFail();
+
+        $businesses = Business::where('category_id', $category_id)
+            ->where('is_admin_verified', 1)
+            ->orderBy('business_name', 'asc')
+            ->paginate(50);
+
+        return view('business.category_businesses', compact('category', 'businesses'));
     }
 }

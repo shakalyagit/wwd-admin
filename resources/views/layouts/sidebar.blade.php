@@ -116,6 +116,17 @@
                         </div>
                     </a>
                 </li>
+                <li>
+                    <a class="nav-link {{ request()->is('category-count') ? 'active' : '' }} || {{ request()->is('category/*/businesses') ? 'active' : '' }}"
+                        href="{{ route('category_count') }}" role="button">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon">
+                                <span class="bi bi-tags"></span>
+                            </span>
+                            <span class="nav-link-text ps-1">Category count</span>
+                        </div>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
