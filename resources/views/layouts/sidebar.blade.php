@@ -73,6 +73,17 @@
                     </a>
                 </li>
                 <li>
+                    <a class="nav-link {{ request()->is('users') ? 'active' : '' }}"
+                        href="{{ route('users') }}" role="button">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon">
+                                <span class="bi bi-people"></span>
+                            </span>
+                            <span class="nav-link-text ps-1">Users</span>
+                        </div>
+                    </a>
+                </li>
+                <li>
                     <a class="nav-link {{ request()->is('business-list') ? 'active' : '' }} || {{ request()->is('edit-business/*') ? 'active' : '' }}"
                         href="{{ route('business_list') }}" role="button">
                         <div class="d-flex align-items-center">
@@ -80,6 +91,39 @@
                                 <span class="bi-shield-lock"></span>
                             </span>
                             <span class="nav-link-text ps-1">Business Listing</span>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link {{ request()->is('subscriptions') ? 'active' : '' }} || {{ request()->is('subscriptions/*') ? 'active' : '' }}"
+                        href="{{ route('subscriptions') }}" role="button">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon">
+                                <span class="bi bi-bell"></span>
+                            </span>
+                            <span class="nav-link-text ps-1">Subscription</span>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link {{ request()->is('old-business-list') ? 'active' : '' }} || {{ request()->is('edit-old-business/*') ? 'active' : '' }}"
+                        href="{{ route('old_business_list') }}" role="button">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon">
+                                <span class="bi-shield-lock"></span>
+                            </span>
+                            <span class="nav-link-text ps-1">Old Business</span>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link {{ request()->is('category-count') ? 'active' : '' }} || {{ request()->is('category/*/businesses') ? 'active' : '' }}"
+                        href="{{ route('category_count') }}" role="button">
+                        <div class="d-flex align-items-center">
+                            <span class="nav-link-icon">
+                                <span class="bi bi-tags"></span>
+                            </span>
+                            <span class="nav-link-text ps-1">Category count</span>
                         </div>
                     </a>
                 </li>

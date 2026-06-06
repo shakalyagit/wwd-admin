@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html data-bs-theme="light" lang="en-US" dir="ltr"
-    class="{{ request()->is('dashboard-2') || request()->is('dashboard-3') || request()->is('risk-register') || request()->is('assessment') || request()->is('view-risk-register/*') || request()->is('add-risk') || request()->is('edit-risk/*') || request()->is('kri-master') || request()->is('add-kri') || request()->is('edit-kri/*') || request()->is('view-kri-master/*') ? 'navbar-vertical-collapsed' : '' }}">
+    class="{{ request()->is('business-list') || request()->is('edit-business/*') ? 'navbar-vertical-collapsed' : '' }}">
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
 <head>
