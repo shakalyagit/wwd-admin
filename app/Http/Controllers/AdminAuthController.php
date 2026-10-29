@@ -19,35 +19,92 @@ class AdminAuthController extends Controller
 {
     public function dashboard()
     {
-        $total_business = Business::count();
-        $verified_business = Business::where('is_claimed', 1)->count();
-        $unverified_business = Business::where('is_claimed', 0)->count();
-        $todays_business = Business::whereDate('created_at', Carbon::today())->count();
-        $approved_business = Business::where('is_admin_verified', 1)->count();
-        $featured_business = Business::where('business_status', 'P')->count();
+        $start_date = Carbon::today()->subDays(9);
+        $end_date   = Carbon::today();
+        $today = Carbon::today()->toDateString();
+        $yesterday = Carbon::yesterday()->toDateString();
+        $month_ago = Carbon::now()->subDays(30);
+
+        // All headline counts in one query
+        $stats = Business::selectRaw(
+            'COUNT(*) as total,
+            SUM(is_claimed = 1) as verified,
+            SUM(is_claimed = 0) as unverified,
+            SUM(DATE(created_at) = ?) as today,
+            SUM(DATE(created_at) = ?) as yesterday,
+            SUM(DATE(created_at) = ? AND is_admin_verified = 0) as today_pending,
+            SUM(created_at >= ?) as new_30,
+            SUM(is_admin_verified = 1) as approved,
+            SUM(is_admin_verified = 0) as pending_review,
+            SUM(business_status = ?) as featured',
+            [$today, $yesterday, $today, $month_ago, 'P']
+        )->first();
+
+        $total_business = (int) $stats->total;
+        $verified_business = (int) $stats->verified;
+        $unverified_business = (int) $stats->unverified;
+        $todays_business = (int) $stats->today;
+        $approved_business = (int) $stats->approved;
+        $pending_review = (int) $stats->pending_review;
+        $featured_business = (int) $stats->featured;
+
+        // Daily submissions for the last 10 days in one grouped query
+        $daily = Business::selectRaw('DATE(created_at) as day, COUNT(*) as total, SUM(business_status = ?) as paid', ['P'])
+            ->where('created_at', '>=', $start_date)
+            ->groupBy('day')
+            ->get()
+            ->keyBy('day');
 
         $dates = [];
         $total_submissions = [];
         $paid_submissions = [];
 
-        $start_date = Carbon::today()->subDays(9);
-        $end_date   = Carbon::today();
-
         for ($i = 9; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i)->format('Y-m-d');
+            $day = Carbon::today()->subDays($i);
+            $row = $daily->get($day->toDateString());
 
-            $dates[] = Carbon::parse($date)->format('d M');
-
-            // Total business submissions
-            $total_submissions[] = Business::whereDate('created_at', $date)->count();
-
-            // Paid businesses
-            $paid_submissions[] = Business::whereDate('created_at', $date)
-                ->where('business_status', 'P')
-                ->count();
+            $dates[] = $day->format('d M');
+            $total_submissions[] = $row ? (int) $row->total : 0;
+            $paid_submissions[] = $row ? (int) $row->paid : 0;
         }
 
-        return view('index', compact('total_business', 'verified_business', 'unverified_business', 'todays_business', 'approved_business', 'featured_business', 'dates', 'total_submissions', 'paid_submissions', 'start_date', 'end_date'));
+        $recent_businesses = Business::select('business_id', 'business_name', 'is_claimed', 'is_admin_verified', 'created_at')
+            ->orderBy('business_id', 'desc')
+            ->limit(6)
+            ->get();
+
+        // Customer accounts (admins excluded): business users own a business, the rest are guests
+        $user_stats = User::where('is_admin', 0)
+            ->selectRaw(
+                'COUNT(*) as total,
+                SUM(EXISTS (SELECT 1 FROM businesses WHERE businesses.user_id = users.id)) as business,
+                SUM(is_active = 1) as activated,
+                SUM(created_at >= ?) as new_30,
+                SUM(DATE(created_at) = ?) as today,
+                SUM(DATE(created_at) = ?) as yesterday,
+                SUM(DATE(created_at) = ? AND EXISTS (SELECT 1 FROM businesses WHERE businesses.user_id = users.id)) as today_business',
+                [$month_ago, $today, $yesterday, $today]
+            )
+            ->first();
+
+        $total_users = (int) $user_stats->total;
+        $business_users = (int) $user_stats->business;
+        $guest_users = $total_users - $business_users;
+        $new_users = (int) $user_stats->new_30;
+        $activated_users = (int) $user_stats->activated;
+        $new_businesses = (int) $stats->new_30;
+
+        // Today vs yesterday (server time, UTC)
+        $today_stats = [
+            'businesses'           => $todays_business,
+            'businesses_yesterday' => (int) $stats->yesterday,
+            'businesses_pending'   => (int) $stats->today_pending,
+            'users'                => (int) $user_stats->today,
+            'users_yesterday'      => (int) $user_stats->yesterday,
+            'users_business'       => (int) $user_stats->today_business,
+        ];
+
+        return view('index', compact('total_business', 'verified_business', 'unverified_business', 'todays_business', 'approved_business', 'pending_review', 'featured_business', 'dates', 'total_submissions', 'paid_submissions', 'start_date', 'end_date', 'recent_businesses', 'total_users', 'business_users', 'guest_users', 'new_users', 'activated_users', 'new_businesses', 'today_stats'));
     }
 
     public function admin_login()
@@ -77,7 +134,7 @@ class AdminAuthController extends Controller
                 return redirect()->route('login')->with('error', 'Your account is inactive.');
             }
         } else {
-            return redirect()->back()->with('error', 'Invalid Email Or Password.');
+            return redirect()->back()->withInput($request->only('email'))->with('error', 'Invalid email or password.');
         }
     }
 

@@ -35,5 +35,9 @@ return [
         'url' => env('CUSTOMER_APP_URL'),
     ],
 
+    'wwd' => [
+        'claim_url' => env('WWD_CLAIM_URL', 'https://biz.worldweb-directory.com/claim-business'),
+    ],
+
 
 ];

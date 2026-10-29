@@ -247,6 +247,33 @@
         </div>
     </div>
     <div class="col-md-6">
+        @php
+            $band_text = ['green' => 'Verified + logo uploaded: ready for admin approval', 'yellow' => 'Verified, but no logo yet: not ready for approval', 'red' => 'Not verified by the owner yet: not ready for approval'];
+        @endphp
+        <div class="card mb-3">
+            <div class="card-header bg-300">
+                <h5 class="card-title">Profile score</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    {!! str_replace('class="score-ring', 'class="score-ring is-lg', profile_score_badge($profile)) !!}
+                    <div>
+                        <div class="fw-semibold text-900">{{ $profile['score'] }} / 100</div>
+                        <div class="small text-600">{{ $band_text[$profile['band']] }}</div>
+                    </div>
+                </div>
+                <ul class="score-list">
+                    @foreach ($profile['items'] as [$label, $points, $max])
+                    @php $state = $points >= $max ? 'is-done' : ($points > 0 ? 'is-part' : 'is-missing'); @endphp
+                    <li class="{{ $state }}">
+                        <i class="bi {{ $state === 'is-done' ? 'bi-check-circle-fill' : ($state === 'is-part' ? 'bi-circle-half' : 'bi-circle') }}"></i>
+                        <span>{{ $label }}</span>
+                        <span class="pts">{{ $points }}/{{ $max }}</span>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
         <div class="card mb-3">
             <div class="card-header bg-300">
                 <h5 class="card-title">Other information</h5>

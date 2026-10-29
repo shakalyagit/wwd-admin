@@ -28,12 +28,38 @@ class BusinessController extends Controller
 {
     public function business_list()
     {
-        $business = Business::leftjoin('categories', 'businesses.category_id', '=', 'categories.category_id')
-            ->select('businesses.*', 'categories.cat_name as category_name')->orderBy('businesses.business_id', 'desc')->paginate(50);
+        $business = $this->business_list_query()->orderBy('businesses.business_id', 'desc')->paginate(50);
         $categories = Category::get();
         $parents = $categories->where('parent_cat_id', 0);
         $children = $categories->where('parent_cat_id', '!=', 0);
-        return view('business.index', compact('business', 'categories', 'parents', 'children'));
+
+        // Counts for the filter cards, in one query
+        $today = Carbon::today()->toDateString();
+        $counts = Business::selectRaw(
+            'COUNT(*) as total,
+            SUM(DATE(created_at) = ?) as today,
+            SUM(DATE(created_at) = ? AND is_admin_verified = 0) as today_pending,
+            SUM(is_admin_verified = 1) as approved,
+            SUM(is_admin_verified = 0) as pending,
+            SUM(is_admin_verified = 2) as rejected',
+            [$today, $today]
+        )->first();
+
+        return view('business.index', compact('business', 'categories', 'parents', 'children', 'counts', 'today'));
+    }
+
+    // Base query for the business list + its AJAX filter: category name, logo and profile-score inputs
+    private function business_list_query()
+    {
+        return Business::leftJoin('categories', 'businesses.category_id', '=', 'categories.category_id')
+            ->leftJoin('media', function ($join) {
+                $join->on('businesses.business_id', '=', 'media.ref_id')
+                    ->where('media.ref_table', 'businesses')
+                    ->where('media.file_type', 'logo');
+            })
+            ->select('businesses.*', 'categories.cat_name as category_name', 'media.file_path as logo_path')
+            ->selectRaw('EXISTS (SELECT 1 FROM business_custom_hours h WHERE h.business_id = businesses.business_id) as has_hours')
+            ->selectRaw("EXISTS (SELECT 1 FROM business_addresses a WHERE a.business_id = businesses.business_id AND COALESCE(a.city, '') <> '') as has_address");
     }
 
     public function edit_business($id)
@@ -63,7 +89,10 @@ class BusinessController extends Controller
 
         $business = Business::find($decrypt_id);
         $edit_user = User::where('id', $business->user_id)->first();
-        return view('business.edit', compact('edit_business', 'edit_user', 'categories', 'parents', 'children', 'countries', 'business_address', 'ref_countries', 'hours', 'has_hours', 'times'));
+        $profile = business_profile_score($edit_business, !empty($edit_business->file_path), $has_hours,
+            $business_address && trim((string) $business_address->city) !== '');
+
+        return view('business.edit', compact('edit_business', 'edit_user', 'categories', 'parents', 'children', 'countries', 'business_address', 'ref_countries', 'hours', 'has_hours', 'times', 'profile'));
     }
 
     public function edit_business_action(Request $request)
@@ -267,14 +296,25 @@ class BusinessController extends Controller
             return $currentPage;
         });
 
-        $query = Business::leftJoin('categories', 'businesses.category_id', '=', 'categories.category_id')
-            ->select('businesses.*', 'categories.cat_name as category_name');
+        $query = $this->business_list_query();
+
+        // Profile score colour band (see business_profile_score())
+        if ($request->profile_band === 'green') {
+            $query->where('businesses.is_claimed', 1)->whereNotNull('media.file_path');
+        } elseif ($request->profile_band === 'yellow') {
+            $query->where('businesses.is_claimed', 1)->whereNull('media.file_path');
+        } elseif ($request->profile_band === 'red') {
+            $query->where('businesses.is_claimed', '!=', 1);
+        }
 
         if ($request->filled('business_verified')) {
             $query->where('businesses.is_claimed', $request->business_verified);
         }
 
-        if ($request->filled('admin_verified')) {
+        if ($request->admin_verified === 'not_approved') {
+            // Pending + rejected
+            $query->where('businesses.is_admin_verified', '!=', 1);
+        } elseif ($request->filled('admin_verified')) {
             $query->where('businesses.is_admin_verified', $request->admin_verified);
         }
 
@@ -324,11 +364,11 @@ class BusinessController extends Controller
                 $view_url = $row->business_website;
                 $html .= '<tr>';
                 $html .= '<td>' . date('d-m-Y', strtotime($row->created_at)) . '</td>';
-                $html .= '<td>' . e($row->business_name) . '</td>';
+                $html .= '<td class="text-nowrap">' . business_logo_thumb($row->business_name, $row->logo_path) . '</td>';
                 $html .= '<td>' . e($row->category_name) . '</td>';
                 $html .= '<td>' . status_badge($row->is_claimed) . '</td>';
                 $html .= '<td>' . status_badge($row->is_admin_verified) . '</td>';
-                $html .= '<td>' . payment_badge($row->business_status) . '</td>';
+                $html .= '<td>' . profile_score_badge(business_profile_score($row, (bool) $row->logo_path, (bool) $row->has_hours, (bool) $row->has_address)) . '</td>';
 
                 $html .= '<td class="text-nowrap">
                     <a class="badge bg-info rounded rounded-circle"
@@ -822,41 +862,105 @@ class BusinessController extends Controller
     {
         $search = $request->input('search');
 
-        $categories = Category::select('categories.*')
-            ->selectSub(function ($q) {
-                $q->from('businesses')
-                    ->whereColumn('businesses.category_id', 'categories.category_id')
-                    ->where('is_admin_verified', 1)
-                    ->selectRaw('count(*)');
-            }, 'approved_businesses_count')
-            ->get();
+        // Business counts per category_id (total / approved / pending / rejected) in one query
+        $counts = Business::selectRaw(
+            'category_id, COUNT(*) as total,
+            SUM(is_admin_verified = 1) as approved,
+            SUM(is_admin_verified = 0) as pending,
+            SUM(is_admin_verified = 2) as rejected'
+        )
+            ->groupBy('category_id')
+            ->get()
+            ->keyBy('category_id');
 
-        $parents = $categories->where('parent_cat_id', 0);
-        $children = $categories->where('parent_cat_id', '!=', 0);
+        $stats = function ($category_id) use ($counts) {
+            $row = $counts->get($category_id);
+            return [
+                'total'    => $row ? (int) $row->total : 0,
+                'approved' => $row ? (int) $row->approved : 0,
+                'pending'  => $row ? (int) $row->pending : 0,
+                'rejected' => $row ? (int) $row->rejected : 0,
+            ];
+        };
+        // Sum two stats arrays key by key (both use the same key order)
+        $add = fn($a, $b) => array_combine(array_keys($a), array_map(fn($x, $y) => $x + $y, $a, $b));
 
-        if (!empty($search)) {
-            $children = $children->filter(function ($child) use ($search, $parents) {
-                $parentName = $parents->where('category_id', $child->parent_cat_id)->first()?->cat_name ?? '';
-                return stripos($child->cat_name, $search) !== false
-                    || stripos($parentName, $search) !== false;
-            });
+        $categories = Category::select('category_id', 'cat_name', 'parent_cat_id')->orderBy('cat_name')->get();
+        $children_by_parent = $categories->where('parent_cat_id', '!=', 0)->groupBy('parent_cat_id');
+
+        $groups = [];
+        foreach ($categories->where('parent_cat_id', 0) as $parent) {
+            // Businesses filed under the main category itself, not a sub-category
+            $direct = $stats($parent->category_id);
+            $totals = $direct;
+
+            $subs = [];
+            foreach ($children_by_parent->get($parent->category_id, collect()) as $child) {
+                $child_stats = $stats($child->category_id);
+                $totals = $add($totals, $child_stats);
+                $subs[] = ['id' => $child->category_id, 'name' => trim($child->cat_name), 'stats' => $child_stats];
+            }
+
+            $groups[] = [
+                'id'     => $parent->category_id,
+                'name'   => trim($parent->cat_name),
+                'direct' => $direct,
+                'subs'   => $subs,
+                'stats'  => $totals,
+            ];
         }
 
-        return view('business.category_count', compact('parents', 'children', 'search'));
+        usort($groups, fn($a, $b) => $b['stats']['total'] <=> $a['stats']['total']);
+
+        $grand = array_reduce($groups, fn($sum, $group) => $add($sum, $group['stats']), ['total' => 0, 'approved' => 0, 'pending' => 0, 'rejected' => 0]);
+        $summary = [
+            'main_count'   => count($groups),
+            'sub_count'    => $children_by_parent->flatten()->count(),
+            'empty_subs'   => collect($groups)->flatMap(fn($group) => $group['subs'])->where('stats.total', 0)->count(),
+            // Businesses whose category_id doesn't match any category
+            'uncategorized' => (int) $counts->sum('total') - $grand['total'],
+        ] + $grand;
+
+        return view('business.category_count', compact('groups', 'summary', 'search'));
     }
 
-    public function category_businesses($category_id)
+    public function category_businesses(Request $request, $category_id)
     {
         $category = Category::leftJoin('categories as parent', 'categories.parent_cat_id', '=', 'parent.category_id')
             ->select('categories.*', 'parent.cat_name as parent_cat_name')
             ->where('categories.category_id', $category_id)
             ->firstOrFail();
 
-        $businesses = Business::where('category_id', $category_id)
-            ->where('is_admin_verified', 1)
-            ->orderBy('business_name', 'asc')
-            ->paginate(50);
+        // A main category includes its sub-categories unless ?scope=direct
+        $is_main = $category->parent_cat_id == 0;
+        $direct_only = $is_main && $request->input('scope') === 'direct';
+        $category_ids = [$category->category_id];
+        if ($is_main && !$direct_only) {
+            $category_ids = array_merge($category_ids, Category::where('parent_cat_id', $category->category_id)->pluck('category_id')->all());
+        }
 
-        return view('business.category_businesses', compact('category', 'businesses'));
+        $status_map = ['approved' => 1, 'pending' => 0, 'rejected' => 2];
+        $status = array_key_exists($request->input('status'), $status_map) ? $request->input('status') : 'all';
+
+        $status_counts = Business::whereIn('category_id', $category_ids)
+            ->selectRaw('COUNT(*) as total, SUM(is_admin_verified = 1) as approved, SUM(is_admin_verified = 0) as pending, SUM(is_admin_verified = 2) as rejected')
+            ->first();
+
+        $businesses = Business::leftJoin('categories', 'businesses.category_id', '=', 'categories.category_id')
+            ->leftJoin('media', function ($join) {
+                $join->on('businesses.business_id', '=', 'media.ref_id')
+                    ->where('media.ref_table', 'businesses')
+                    ->where('media.file_type', 'logo');
+            })
+            ->select('businesses.business_id', 'businesses.business_name', 'businesses.business_website', 'businesses.business_email',
+                'businesses.is_claimed', 'businesses.is_admin_verified', 'businesses.created_at',
+                'categories.cat_name as category_name', 'media.file_path as logo_path')
+            ->whereIn('businesses.category_id', $category_ids)
+            ->when($status !== 'all', fn($q) => $q->where('businesses.is_admin_verified', $status_map[$status]))
+            ->orderBy('businesses.business_id', 'desc')
+            ->paginate(50)
+            ->withQueryString();
+
+        return view('business.category_businesses', compact('category', 'businesses', 'status', 'status_counts', 'is_main', 'direct_only'));
     }
 }

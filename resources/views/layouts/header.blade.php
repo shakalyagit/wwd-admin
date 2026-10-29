@@ -1,113 +1,41 @@
 <!DOCTYPE html>
-<html data-bs-theme="light" lang="en-US" dir="ltr"
-    class="{{ request()->is('business-list') || request()->is('edit-business/*') ? 'navbar-vertical-collapsed' : '' }}">
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<html data-bs-theme="light" lang="en-US" dir="ltr">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name') }}</title>
 
-    <!-- ===============================================-->
-    <!--    Document Title-->
-    <!-- ===============================================-->
-    <title>{{ env('APP_NAME') }}</title>
-
-    <!-- ===============================================-->
-    <!--    Favicons-->
-    <!-- ===============================================-->
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/icons/spot-illustrations/wwd.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/icons/spot-illustrations/wwd.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/icons/spot-illustrations/wwd.png">
-    <link rel="shortcut icon" type="image/x-icon" href="/assets/img/icons/spot-illustrations/wwd.png">
-    <link rel="manifest" href="/assets/img/favicons/manifest.json">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css" />
-
-    <meta name="msapplication-TileImage" content="/assets/img/favicons/mstile-150x150.png">
+    <link rel="icon" type="image/png" href="/assets/brand/wwd-icon.png">
+    <link rel="apple-touch-icon" href="/assets/brand/wwd-icon-180.png">
     <meta name="theme-color" content="#ffffff">
 
-    {{-- Multi File Upload and preview --}}
-    <script src="/assets/vendors/dropzone/dropzone.min.js"></script>
-    <link href="/assets/vendors/dropzone/dropzone.min.css" rel="stylesheet" />
-
-    <script src="/assets/js/config.js"></script>
-    <script src="/assets/vendors/simplebar/simplebar.min.js"></script>
-    <script src="/assets/vendors/datatables.net-bs5/dataTables.bootstrap5.min.css"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js" referrerpolicy="origin"></script>
-
-    <!-- ===============================================-->
-    <!--    Stylesheets-->
-    <!-- ===============================================-->
-    <link rel="preconnect" href="https://fonts.gstatic.com/">
-    <link
-        href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700%7cPoppins:300,400,500,600,700,800,900&amp;display=swap"
-        rel="stylesheet">
-    <link href="/assets/vendors/simplebar/simplebar.min.css" rel="stylesheet">
-
-    <link href="/assets/css/theme-rtl.min.css" rel="stylesheet" id="style-rtl">
-    <link href="/assets/css/theme.min.css" rel="stylesheet" id="style-default">
-    <link href="/assets/css/user-rtl.min.css" rel="stylesheet" id="user-style-rtl">
-    <link href="/assets/css/user.min.css" rel="stylesheet" id="user-style-default">
-    <link href="/assets/vendors/choices/choices.min.css" rel="stylesheet" />
-    {{-- datepicker --}}
-    <link href="/assets/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
+    {{-- Restore sidebar state before first paint to avoid a flicker --}}
     <script>
-        var isRTL = JSON.parse(localStorage.getItem('isRTL'));
-        if (isRTL) {
-            var linkDefault = document.getElementById('style-default');
-            var userLinkDefault = document.getElementById('user-style-default');
-            linkDefault.setAttribute('disabled', true);
-            userLinkDefault.setAttribute('disabled', true);
-            document.querySelector('html').setAttribute('dir', 'rtl');
-        } else {
-            var linkRTL = document.getElementById('style-rtl');
-            var userLinkRTL = document.getElementById('user-style-rtl');
-            linkRTL.setAttribute('disabled', true);
-            userLinkRTL.setAttribute('disabled', true);
-        }
+        try {
+            if (localStorage.getItem('wwdSidebarCollapsed') === '1') {
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        } catch (e) {}
     </script>
-    <style>
-        .error {
-            color: var(--falcon-form-invalid-border-color) !important;
-        }
 
-        select,
-        input,
-        textarea {
-            /* border: 1px solid #0b1727 !important;
-            border-radius: 0px !important; */
-            color: #0b1727 !important;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-        .btn {
-            border-radius: 0px !important;
-        }
-
-        td,
-        th,
-        tr,
-        label {
-            color: #0b1727 !important;
-        }
-
-        .navbar-vertical.navbar-vibrant .navbar-nav .nav-item .nav-link:hover,
-        .navbar-vertical.navbar-vibrant .navbar-nav .nav-item .nav-link:focus {
-            color: #656e7c;
-        }
-    </style>
+    <link href="/assets/css/theme.min.css" rel="stylesheet">
+    <link href="/assets/css/user.min.css" rel="stylesheet">
     <link href="/assets/css/custom.css" rel="stylesheet">
+    <link href="/assets/css/wwd-admin.css" rel="stylesheet">
+    @stack('styles')
 </head>
 
-<div class="overlay" id="overlay" style="display: none;">
-    <div class="loader"></div>
-</div>
-
 <body>
+    <div class="overlay" id="overlay" style="display: none;">
+        <div class="loader"></div>
+    </div>
 
-    <!-- ===============================================--><!--    Main Content--><!-- ===============================================-->
-    <main class="main" id="top">
-        <div class="container-fluid" data-layout="container">
-
-            <!-- ===============================================-->
-            <!--    Main Content-->
-            <!-- ===============================================-->
+    <div class="app">

@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\BusinessController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RiskRegisterController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
@@ -36,7 +38,6 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/users', [UserController::class, 'users'])->name('users');
     Route::post('/users-status-update', [UserController::class, 'users_status_update'])->name('users_status_update');
-    Route::get('/user-list-filter', [UserController::class, 'user_list_filter'])->name('user_list_filter');
 
     //Old Business Listing Route
     Route::get('old-business-list', [BusinessController::class, 'old_business_list'])->name('old_business_list');
@@ -52,6 +53,19 @@ Route::group(['middleware' => 'auth'], function () {
     // Category Count Routes
     Route::get('category-count', [BusinessController::class, 'category_count'])->name('category_count');
     Route::get('category/{category_id}/businesses', [BusinessController::class, 'category_businesses'])->name('category_businesses');
+    Route::get('add-category', [CategoryController::class, 'category_create'])->name('category_create');
+    Route::post('add-category-action', [CategoryController::class, 'category_store'])->name('category_store');
+    Route::get('/category-check-name', [CategoryController::class, 'category_check_name'])->name('category_check_name');
+
+    // Notification Routes
+    Route::get('notifications', [NotificationController::class, 'notifications'])->name('notifications');
+    Route::get('/notifications-filter', [NotificationController::class, 'notifications_filter'])->name('notifications_filter');
+    Route::get('notification-queue', [NotificationController::class, 'notification_queue'])->name('notification_queue');
+    Route::post('/notification-resend/{business_id}', [NotificationController::class, 'notification_resend'])->name('notification_resend');
+    Route::post('/notification-pause-toggle/{business_id}', [NotificationController::class, 'notification_pause_toggle'])->name('notification_pause_toggle');
+    Route::get('notification-templates', [NotificationController::class, 'notification_templates'])->name('notification_templates');
+    Route::get('edit-notification-template/{id}', [NotificationController::class, 'edit_notification_template'])->name('edit_notification_template');
+    Route::post('edit-notification-template-action/{id}', [NotificationController::class, 'edit_notification_template_action'])->name('edit_notification_template_action');
 });
 
 Route::group(['middleware' => 'guest'], function () {

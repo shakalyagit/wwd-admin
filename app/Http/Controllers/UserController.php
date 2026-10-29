@@ -2,18 +2,68 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Business;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\Paginator;
 
 class UserController extends Controller
 {
-    public function users()
+    // Business users own at least one business; everyone else is a guest user. Admins are excluded.
+    public function users(Request $request)
     {
-        $users = User::leftjoin('businesses', 'users.id', '=', 'businesses.user_id')
-            ->select('users.*', 'businesses.business_website', 'businesses.is_claimed')
-            ->orderBy('users.id', 'desc')->paginate(50);
-        return view('users.index', compact('users'));
+        $since = now()->subDays(30);
+
+        $owners = Business::select('user_id')
+            ->selectRaw('MIN(business_id) as business_id, COUNT(*) as business_count')
+            ->whereNotNull('user_id')
+            ->groupBy('user_id');
+
+        $base = User::leftJoinSub($owners, 'owner', 'owner.user_id', '=', 'users.id')
+            ->where('users.is_admin', 0);
+
+        $stats = (clone $base)->selectRaw(
+            'COUNT(*) as total,
+            SUM(owner.user_id IS NOT NULL) as business,
+            SUM(owner.user_id IS NULL) as guest,
+            SUM(users.is_active = 1) as activated,
+            SUM(users.last_login_at >= ?) as active_30,
+            SUM(users.last_login_at IS NOT NULL) as ever_signed_in,
+            SUM(users.created_at >= ?) as new_30,
+            SUM(users.google_id IS NOT NULL) as google',
+            [$since, $since]
+        )->first();
+
+        $type = in_array($request->type, ['business', 'guest']) ? $request->type : 'all';
+
+        $users = (clone $base)
+            ->leftJoin('businesses', 'businesses.business_id', '=', 'owner.business_id')
+            ->select('users.id', 'users.first_name', 'users.last_name', 'users.email', 'users.google_id', 'users.google_avatar',
+                'users.is_active', 'users.status', 'users.last_login_at', 'users.created_at',
+                'owner.business_count', 'businesses.business_id', 'businesses.business_name', 'businesses.business_website', 'businesses.is_claimed')
+            ->when($type === 'business', fn($q) => $q->whereNotNull('owner.user_id'))
+            ->when($type === 'guest', fn($q) => $q->whereNull('owner.user_id'))
+            ->when($request->filled('q'), function ($q) use ($request) {
+                $term = '%' . $request->q . '%';
+                $q->where(function ($q) use ($term) {
+                    $q->where('users.email', 'like', $term)
+                        ->orWhereRaw("CONCAT_WS(' ', users.first_name, users.last_name) like ?", [$term])
+                        ->orWhere('businesses.business_name', 'like', $term)
+                        ->orWhere('businesses.business_website', 'like', $term);
+                });
+            })
+            ->when($request->account === 'activated', fn($q) => $q->where('users.is_active', 1))
+            ->when($request->account === 'not_activated', fn($q) => $q->where('users.is_active', '!=', 1))
+            ->when($request->activity === 'active_30', fn($q) => $q->where('users.last_login_at', '>=', $since))
+            ->when($request->activity === 'never', fn($q) => $q->whereNull('users.last_login_at'))
+            ->when($request->status === 'enabled', fn($q) => $q->where('users.status', 1))
+            ->when($request->status === 'disabled', fn($q) => $q->where('users.status', '!=', 1))
+            ->orderBy('users.id', 'desc')
+            ->paginate(50)
+            ->withQueryString();
+
+        $has_filters = $request->filled('q') || $request->filled('account') || $request->filled('activity') || $request->filled('status');
+
+        return view('users.index', compact('users', 'stats', 'type', 'has_filters'));
     }
 
     public function users_status_update(Request $request)
@@ -27,61 +77,5 @@ class UserController extends Controller
             'status' => $user->status,
             'badge' => users_status($user->status),
         ]);
-    }
-
-    public function user_list_filter(Request $request)
-    {
-        $currentPage = $request->input('page', 1);
-        Paginator::currentPageResolver(function () use ($currentPage) {
-            return $currentPage;
-        });
-
-        $query = User::leftjoin('businesses', 'users.id', '=', 'businesses.user_id')
-            ->select('users.*', 'businesses.business_website', 'businesses.is_claimed');
-
-        if ($request->filled('email')) {
-            $query->where('users.email', $request->email);
-        }
-
-        if ($request->filled('status')) {
-            $query->where('users.status', $request->status);
-        }
-
-        $users = $query->orderBy('users.id', 'desc')->paginate(50);
-
-        $html = '';
-
-        if ($users->count()) {
-            foreach ($users as $row) {
-                $html .= '<tr>';
-                $html .= '<td>' . e($row->first_name . ' ' . $row->last_name) . '</td>';
-                $html .= '<td>' . e($row->email) . '</td>';
-                $html .= '<td>
-                            <a href="' . e($row->business_website) . '" target="_blank" rel="noopener noreferrer">
-                                ' . e($row->business_website) . '
-                            </a>
-                        </td>';
-                $html .= '<td>' . date('d-m-Y', strtotime($row->created_at)) . '</td>';
-                $html .= '<td>' . date('d-m-Y H:i:s', strtotime($row->last_login_at)) . '</td>';
-                $html .= '<td>' . status_badge($row->is_claimed) . '</td>';
-
-                $html .= '<td class="text-nowrap">
-                    <span class="user-status-toggle" data-id="' . $row->id . '" style="cursor:pointer"> ' . users_status($row->status) . ' </span>
-                </td>';
-
-                $html .= '</tr>';
-            }
-        } else {
-            $html .= '<tr>
-            <td colspan="7" class="text-center">' . no_record_found_in_table() . '</td>
-        </tr>';
-        }
-
-        $pagination = $users
-            ->appends(array_merge($request->all(), ['page' => $currentPage]))
-            ->links('pagination::bootstrap-5')
-            ->render();
-
-        return response()->json(['html' => $html, 'pagination' => $pagination, 'page' => $currentPage]);
     }
 }

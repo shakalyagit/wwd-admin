@@ -13,6 +13,17 @@
             </div>
             <div class="mb-3">
                 <div class="form-group">
+                    <label class="form-label">Profile score</label>
+                    <select name="profile_band" class="form-select">
+                        <option value="">Select</option>
+                        <option value="green">Green – verified + logo (ready for approval)</option>
+                        <option value="yellow">Yellow – verified, no logo</option>
+                        <option value="red">Red – not verified</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group">
                     <label class="form-label">Business verified</label>
                     <select name="business_verified" class="form-select">
                         <option value="">Select</option>
@@ -29,6 +40,7 @@
                         <option value="0">Pending</option>
                         <option value="1">Verified</option>
                         <option value="2">Reject</option>
+                        <option value="not_approved">Not approved (pending + rejected)</option>
                     </select>
                 </div>
             </div>

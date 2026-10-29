@@ -107,8 +107,8 @@
                     <div class="card-footer bg-body-tertiary p-0 border-top">
                         <button class="btn btn-link d-block w-100" type="button" data-bs-toggle="collapse"
                             data-bs-target="#risk-description" aria-expanded="false" aria-controls="risk-description">
-                            <span class="collapsed">Show full <i class="fas fa-chevron-down"></i></span>
-                            <span class="expanded d-none">Show less <i class="fas fa-chevron-up"></i></span>
+                            <span class="collapsed">Show full <i class="bi bi-chevron-down"></i></span>
+                            <span class="expanded d-none">Show less <i class="bi bi-chevron-up"></i></span>
                         </button>
                     </div>
                 @endif
@@ -130,8 +130,8 @@
                         <button class="btn btn-link d-block w-100" type="button" data-bs-toggle="collapse"
                             data-bs-target="#strategic-description" aria-expanded="false"
                             aria-controls="strategic-description">
-                            <span class="collapsed">Show full <i class="fas fa-chevron-down"></i></span>
-                            <span class="expanded d-none">Show less <i class="fas fa-chevron-up"></i></span>
+                            <span class="collapsed">Show full <i class="bi bi-chevron-down"></i></span>
+                            <span class="expanded d-none">Show less <i class="bi bi-chevron-up"></i></span>
                         </button>
                     </div>
                 @endif
@@ -152,8 +152,8 @@
                     <div class="card-footer bg-body-tertiary p-0 border-top">
                         <button class="btn btn-link d-block w-100" type="button" data-bs-toggle="collapse"
                             data-bs-target="#remarks" aria-expanded="false" aria-controls="remarks">
-                            <span class="collapsed">Show full <i class="fas fa-chevron-down"></i></span>
-                            <span class="expanded d-none">Show less <i class="fas fa-chevron-up"></i></span>
+                            <span class="collapsed">Show full <i class="bi bi-chevron-down"></i></span>
+                            <span class="expanded d-none">Show less <i class="bi bi-chevron-up"></i></span>
                         </button>
                     </div>
                 @endif
@@ -498,6 +498,9 @@
         </div>
     </div>
 @endsection
+@push('vendor_scripts')
+<script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.5/tinymce.min.js" referrerpolicy="origin"></script>
+@endpush
 @section('scripts')
     <script>
         tinymce.init({
