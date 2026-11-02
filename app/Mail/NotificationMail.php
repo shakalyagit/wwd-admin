@@ -5,22 +5,23 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
+// Sends an email already rendered from the shared email templates (see EmailTemplateRenderer)
 class NotificationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $mail_subject;
-    public $body;
+    public $mail_html;
 
-    public function __construct($mail_subject, $body)
+    public function __construct($mail_subject, $mail_html)
     {
         $this->mail_subject = $mail_subject;
-        $this->body = $body;
+        $this->mail_html = $mail_html;
     }
 
     public function build()
     {
         return $this->subject($this->mail_subject)
-                    ->view('emails.notification');
+                    ->html($this->mail_html);
     }
 }

@@ -5,7 +5,7 @@
             ['Dashboard', 'dashboard', 'bi-grid-1x2', ['dashboard']],
         ],
         'Directory' => [
-            ['Businesses', 'business_list', 'bi-building', ['business-list', 'edit-business/*', 'business/*']],
+            ['Businesses', 'business_list', 'bi-building', ['business-list', 'business-approval-queue', 'edit-business/*', 'business/*']],
             ['Old businesses', 'old_business_list', 'bi-archive', ['old-business-list', 'edit-old-business/*']],
             ['Categories', 'category_count', 'bi-tags', ['category-count', 'category/*/businesses', 'add-category']],
         ],
@@ -14,7 +14,8 @@
             ['Subscriptions', 'subscriptions', 'bi-credit-card', ['subscriptions', 'subscriptions/*']],
         ],
         'Engagement' => [
-            ['Notifications', 'notifications', 'bi-bell', ['notification*', 'edit-notification-template/*']],
+            ['Notifications', 'notifications', 'bi-bell', ['notification*']],
+            ['Email templates', 'email_templates', 'bi-envelope-paper', ['email-templates', 'add-email-template', 'edit-email-template/*', 'email-layout']],
         ],
     ];
 

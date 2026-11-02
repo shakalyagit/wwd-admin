@@ -35,9 +35,17 @@ Admin panel for **World Web Directory (WWD)**, a business listing directory. Adm
 - All admin routes sit inside the `auth` middleware group in `routes/web.php`; login in the `guest` group.
 - Formatting: 4 spaces, LF, UTF-8 (`.editorconfig`); Pint is available (`vendor/bin/pint`).
 
+## Email templates (shared by all WWD projects)
+- `email_templates` (one row per `template_key`) + `email_layouts` (master layout) are shared by WWD Admin, Business and Listing; admins edit them under **Email templates**. Placeholders are `{{PascalCase}}`.
+- Render only with `App\Helpers\EmailTemplateRenderer` (framework-free; the other projects copy it). Guide + key catalogue: `docs/email-templates.md`.
+- System templates (`is_system = 1`) are referenced by code: never rename their keys; add new ones in `EmailTemplateSeeder` (insert-only, never overwrites admin edits).
+- Never write email HTML in Blade/Mailables; `NotificationMail` only carries rendered HTML.
+
 ## Notifications module
-- Generic: `notification_logs` (every send: type, business, step, auto/manual, sent/failed) + `notification_templates` (one row per `type`, admin-editable, placeholders like `{business_name}`, `{claim_url}`).
-- Send via `App\Helpers\NotificationSender::send()`; it renders the template, mails it, and writes the log. New reminder types (logo, subscription, review) = template row + command + schedule entry.
+- `notification_logs` records every send (type = template key, business, step, auto/manual, sent/failed).
+- Click tracking: `NotificationSender::send()` swaps an email's http(s) button link for the public `/t/{token}` route (`email_click`, outside auth), which records `clicked_at`/`click_count` (bots and HEAD ignored) and forwards to `target_url`. Base URL = `WWD_TRACKING_URL` (defaults to `APP_URL`, must be publicly reachable).
+- Sent log (Notifications) shows one row per day + template; details load via `notification_details`.
+- Send business emails via `App\Helpers\NotificationSender::send($template, $business, $owner)`; it fills the business placeholders, renders, mails, logs, and skips inactive templates. New reminder types = template row + command + schedule entry.
 - `businesses.notifications_paused` stops all reminders for a business.
 - Verification reminder: `notifications:verification-reminders` (`--dry-run`), daily at 23:59 UTC, day 0/1/3/15 then every 15 days while `is_claimed = 0`. Needs a server cron running `php artisan schedule:run` every minute.
 

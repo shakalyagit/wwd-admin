@@ -5,6 +5,9 @@
         <h5>Notifications</h5>
         <p class="page-subtitle">Reminders go out at 11:59 PM UTC on day 0, 1, 3 and 15 after submission, then every 15 days until verified.</p>
     </div>
+    @if ($template)
+    <a href="{{ route('edit_email_template', encrypt($template->email_template_id)) }}" class="btn btn-light"><i class="bi bi-envelope-paper"></i> Edit reminder email</a>
+    @endif
 </div>
 <x-flash />
 @include('notifications.partials.tabs')

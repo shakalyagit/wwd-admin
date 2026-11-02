@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\BusinessApprovedMail;
+use App\Helpers\NotificationSender;
 use App\Models\Business;
+use App\Models\EmailTemplate;
 use App\Models\BusinessAddress;
 use App\Models\BusinessCustomHour;
 use App\Models\Category;
@@ -45,7 +46,9 @@ class BusinessController extends Controller
             [$today, $today]
         )->first();
 
-        return view('business.index', compact('business', 'categories', 'parents', 'children', 'counts', 'today'));
+        $ready_count = $this->ready_for_approval_query(Business::query())->count();
+
+        return view('business.index', compact('business', 'categories', 'parents', 'children', 'counts', 'today', 'ready_count'));
     }
 
     // Base query for the business list + its AJAX filter: category name, logo and profile-score inputs
@@ -268,7 +271,7 @@ class BusinessController extends Controller
         return redirect()->back()->with('success', 'Business logo updated successfully.');
     }
 
-    public function business_approve(Business $business)
+    public function business_approve(Request $request, Business $business)
     {
         $business->update([
             'is_admin_verified' => 1,
@@ -276,17 +279,77 @@ class BusinessController extends Controller
 
         $user = User::where('id', $business->user_id)->first();
 
-        Mail::to($business->business_email)->send(new BusinessApprovedMail($business, $user));
-        return redirect()->route('business_list')->with('success', 'Business approved successfully.');
+        $template = EmailTemplate::where('template_key', NotificationSender::BUSINESS_APPROVED)->first();
+        if ($template) {
+            NotificationSender::send($template, $business, $user, null, 'auto');
+        }
+        return redirect()->route($request->input('return') === 'queue' ? 'business_approval_queue' : 'business_list')
+            ->with('success', '"' . trim($business->business_name) . '" approved.');
     }
 
-    public function business_reject(Business $business)
+    // Businesses that meet the approval rule (owner verified + logo uploaded) and wait for an admin decision, oldest first
+    public function business_approval_queue()
     {
+        $businesses = $this->ready_for_approval_query($this->business_list_query())
+            ->orderBy('businesses.created_at')
+            ->paginate(50);
+
+        $owners = User::whereIn('id', $businesses->pluck('user_id')->filter())
+            ->get(['id', 'first_name', 'last_name'])
+            ->keyBy('id');
+
+        return view('business.approval_queue', compact('businesses', 'owners'));
+    }
+
+    // Owner verified + logo uploaded + not approved or rejected yet
+    private function ready_for_approval_query($query)
+    {
+        return $query->where('businesses.is_claimed', 1)
+            ->where('businesses.is_admin_verified', 0)
+            ->whereExists(function ($q) {
+                $q->selectRaw(1)->from('media')
+                    ->whereColumn('media.ref_id', 'businesses.business_id')
+                    ->where('media.ref_table', 'businesses')
+                    ->where('media.file_type', 'logo');
+            });
+    }
+
+    public function business_reject(Request $request, Business $business)
+    {
+        $request->validate([
+            'reason'      => 'required|in:' . implode(',', array_keys(Business::REJECTION_REASONS)),
+            'reason_note' => 'nullable|string|max:500|required_if:reason,other',
+        ], [
+            'reason.required'         => 'Choose a reason for rejecting this business.',
+            'reason_note.required_if' => 'Write the reason, so the owner knows what to fix.',
+        ]);
+
         $business->update([
             'is_admin_verified' => 2,
         ]);
 
-        return redirect()->route('business_list')->with('success', 'Business rejected successfully.');
+        // Owner sees the chosen reason, plus the admin's note when given
+        $note = trim((string) $request->reason_note);
+        $reason = $request->reason === 'other' ? $note : Business::REJECTION_REASONS[$request->reason] . ($note !== '' ? ' – ' . $note : '');
+
+        $message = 'Business rejected.';
+        $flash = 'warning';
+        $template = EmailTemplate::where('template_key', NotificationSender::BUSINESS_REJECTED)->first();
+        if (empty($business->business_email)) {
+            $message .= ' No email was sent: the business has no email address.';
+        } elseif (!$template || !$template->is_active) {
+            $message .= ' No email was sent: the "Business rejected" email template is switched off.';
+        } else {
+            $log = NotificationSender::send($template, $business, User::find($business->user_id), null, 'auto', ['Reason' => $reason]);
+            if ($log && $log->status === 'sent') {
+                $message .= ' The owner was emailed at ' . $business->business_email . '.';
+                $flash = 'success';
+            } else {
+                $message .= ' The rejection email could not be sent (see Notifications → Sent log).';
+            }
+        }
+
+        return redirect()->route($request->input('return') === 'queue' ? 'business_approval_queue' : 'business_list')->with($flash, $message);
     }
 
     public function business_list_filter(Request $request)
@@ -518,7 +581,10 @@ class BusinessController extends Controller
                 );
             }
 
-            Mail::to($email)->send(new BusinessApprovedMail($new_business, $new_user));
+            $template = EmailTemplate::where('template_key', NotificationSender::BUSINESS_APPROVED)->first();
+            if ($template) {
+                NotificationSender::send($template, $new_business, $new_user, null, 'auto');
+            }
 
             // Delete old business
             $old_business->delete();

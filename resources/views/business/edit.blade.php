@@ -19,13 +19,11 @@
                 Approve
             </button>
         </form>
-        <form method="POST"
-            action="{{ route('business_reject', $edit_business->business_id) }}">
-            @csrf
-            <button type="submit" class="btn btn-danger me-2">
-                Reject
-            </button>
-        </form>
+        <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#rejectModal"
+            data-reject-url="{{ route('business_reject', $edit_business->business_id) }}"
+            data-business-name="{{ $edit_business->business_name }}" data-business-email="{{ $edit_business->business_email }}">
+            Reject
+        </button>
     </div>
     <div class="clear"></div>
 </div>
@@ -445,9 +443,12 @@
         </div>
     </div>
 </div>
+
+@include('business.partials.reject_modal', ['business' => $edit_business])
 @endsection
 @section('scripts')
 <script>
+
     $(document).ready(function() {
         $('#check-business').on('click', function() {
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RiskRegisterController;
 use App\Http\Controllers\SubscriptionController;
@@ -19,6 +20,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Business Listing Route
     Route::get('business-list', [BusinessController::class, 'business_list'])->name('business_list');
+    Route::get('business-approval-queue', [BusinessController::class, 'business_approval_queue'])->name('business_approval_queue');
     // Route::get('add-business', [BusinessController::class, 'add_business'])->name('add_business');
     Route::get('edit-business/{business_id}', [BusinessController::class, 'edit_business'])->name('edit_business');
     Route::post('edit-business-action/{business_id}', [BusinessController::class, 'edit_business_action'])->name('edit_business_action');
@@ -59,14 +61,30 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Notification Routes
     Route::get('notifications', [NotificationController::class, 'notifications'])->name('notifications');
-    Route::get('/notifications-filter', [NotificationController::class, 'notifications_filter'])->name('notifications_filter');
+    Route::get('/notification-details', [NotificationController::class, 'notification_details'])->name('notification_details');
     Route::get('notification-queue', [NotificationController::class, 'notification_queue'])->name('notification_queue');
     Route::post('/notification-resend/{business_id}', [NotificationController::class, 'notification_resend'])->name('notification_resend');
     Route::post('/notification-pause-toggle/{business_id}', [NotificationController::class, 'notification_pause_toggle'])->name('notification_pause_toggle');
-    Route::get('notification-templates', [NotificationController::class, 'notification_templates'])->name('notification_templates');
-    Route::get('edit-notification-template/{id}', [NotificationController::class, 'edit_notification_template'])->name('edit_notification_template');
-    Route::post('edit-notification-template-action/{id}', [NotificationController::class, 'edit_notification_template_action'])->name('edit_notification_template_action');
+
+    // Email template master (shared by WWD Admin, WWD Business and WWD Listing)
+    Route::get('email-templates', [EmailTemplateController::class, 'email_templates'])->name('email_templates');
+    Route::get('add-email-template', [EmailTemplateController::class, 'email_template_create'])->name('email_template_create');
+    Route::post('add-email-template-action', [EmailTemplateController::class, 'email_template_store'])->name('email_template_store');
+    Route::get('edit-email-template/{id}', [EmailTemplateController::class, 'edit_email_template'])->name('edit_email_template');
+    Route::post('edit-email-template-action/{id}', [EmailTemplateController::class, 'edit_email_template_action'])->name('edit_email_template_action');
+    Route::post('/delete-email-template/{id}', [EmailTemplateController::class, 'delete_email_template'])->name('delete_email_template');
+    Route::post('/email-template-preview', [EmailTemplateController::class, 'email_template_preview'])->name('email_template_preview');
+    Route::post('/email-template-test', [EmailTemplateController::class, 'email_template_test'])->name('email_template_test');
+    Route::get('email-layout', [EmailTemplateController::class, 'email_layout'])->name('email_layout');
+    Route::post('email-layout-action', [EmailTemplateController::class, 'email_layout_action'])->name('email_layout_action');
+    Route::post('/email-layout-preview', [EmailTemplateController::class, 'email_layout_preview'])->name('email_layout_preview');
 });
+
+// Public email click tracking (no login): records the click, then forwards to the email's real link
+Route::get('/t/{token}', [NotificationController::class, 'email_click'])
+    ->where('token', '[A-Za-z0-9]{40}')
+    ->middleware('throttle:60,1')
+    ->name('email_click');
 
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/', [AdminAuthController::class, 'admin_login'])->name('login');

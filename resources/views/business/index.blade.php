@@ -19,6 +19,7 @@
     <a href="{{ route('business_create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add business</a>
 </div>
 <x-flash />
+@include('business.partials.tabs')
 
 <div class="row g-3 mb-3">
     @foreach ($filter_cards as [$key, $label, $value, $icon, $color, $meta])

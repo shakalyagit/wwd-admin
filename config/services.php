@@ -37,6 +37,10 @@ return [
 
     'wwd' => [
         'claim_url' => env('WWD_CLAIM_URL', 'https://biz.worldweb-directory.com/claim-business'),
+        // Business owners' login page (WWD Business), used as {{LoginURL}} in emails
+        'business_login_url' => env('WWD_BUSINESS_LOGIN_URL', 'https://biz.worldweb-directory.com/login'),
+        // Public base address of this admin app, used for email click-tracking links (/t/{token})
+        'tracking_url' => env('WWD_TRACKING_URL', env('APP_URL')),
     ],
 
 

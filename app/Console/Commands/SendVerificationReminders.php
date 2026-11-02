@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Helpers\NotificationSender;
 use App\Models\Business;
 use App\Models\NotificationLog;
-use App\Models\NotificationTemplate;
+use App\Models\EmailTemplate;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -18,7 +18,7 @@ class SendVerificationReminders extends Command
 
     public function handle(): int
     {
-        $template = NotificationTemplate::where('type', NotificationSender::VERIFICATION_REMINDER)->first();
+        $template = EmailTemplate::where('template_key', NotificationSender::VERIFICATION_REMINDER)->first();
         if (!$template || !$template->is_active) {
             $this->info('Verification reminder template is missing or inactive. Nothing sent.');
             return self::SUCCESS;
@@ -42,7 +42,7 @@ class SendVerificationReminders extends Command
             ->chunkById(200, function ($businesses) use ($template, $today, $dry_run, &$sent, &$failed) {
                 $ids = $businesses->pluck('business_id');
 
-                $sent_steps = NotificationLog::where('type', $template->type)
+                $sent_steps = NotificationLog::where('type', $template->template_key)
                     ->where('status', 'sent')
                     ->whereNotNull('step')
                     ->whereIn('business_id', $ids)
@@ -68,7 +68,7 @@ class SendVerificationReminders extends Command
                     }
 
                     $log = NotificationSender::send($template, $business, $owners->get($business->user_id), $step);
-                    $log->status === 'sent' ? $sent++ : $failed++;
+                    $log && $log->status === 'sent' ? $sent++ : $failed++;
                 }
             }, 'business_id');
 

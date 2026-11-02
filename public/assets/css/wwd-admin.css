@@ -2464,3 +2464,301 @@ button.kpi-filter.is-active .kpi-label {
     color: var(--wwd-text-3);
     font-variant-numeric: tabular-nums;
 }
+
+/* ---------- Email templates ---------- */
+.tpl-key {
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: var(--wwd-gray-bg);
+    color: var(--wwd-text-2);
+    font-size: 12px;
+}
+
+.tpl-tag {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 1px 7px;
+    border-radius: 99px;
+    background: var(--wwd-blue-bg);
+    color: var(--wwd-blue);
+    font-size: 11px;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.tpl-tag.is-custom {
+    background: #f4f3ff;
+    color: #5925dc;
+}
+
+.project-pill {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 99px;
+    background: var(--wwd-gray-bg);
+    color: var(--wwd-text-2);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.project-pill.is-admin { background: var(--wwd-red-50); color: var(--wwd-red-700); }
+.project-pill.is-business { background: var(--wwd-blue-bg); color: var(--wwd-blue); }
+.project-pill.is-listing { background: var(--wwd-green-bg); color: var(--wwd-green); }
+
+.var-chip {
+    display: inline-block;
+    margin: 0 4px 6px 0;
+    padding: 3px 8px;
+    border: 1px solid var(--wwd-border-strong);
+    border-radius: 6px;
+    background: var(--wwd-surface);
+    color: var(--wwd-text);
+    font-family: SFMono-Regular, Consolas, monospace;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.var-chip:hover {
+    border-color: var(--wwd-red-100);
+    background: var(--wwd-red-50);
+    color: var(--wwd-red-700);
+}
+
+.var-chip.is-global {
+    color: var(--wwd-text-3);
+}
+
+.var-table > tbody td,
+.var-table td {
+    padding: 6px 8px !important;
+    font-size: 13px;
+}
+
+.preview-card {
+    overflow: hidden;
+}
+
+@media (min-width: 1200px) {
+    .preview-card {
+        position: sticky;
+        top: calc(var(--wwd-topbar-h) + 16px);
+    }
+}
+
+.preview-subject {
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--wwd-border);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.preview-stage {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    padding: 16px;
+    background: #eceef1;
+}
+
+.preview-stage iframe {
+    width: 600px;
+    max-width: 100%;
+    height: 620px;
+    border: 0;
+    border-radius: 8px;
+    background: #f4f4f4;
+    box-shadow: var(--wwd-shadow);
+    transition: width .2s ease;
+}
+
+.btn-group .btn.active {
+    background: var(--wwd-red-50);
+    border-color: var(--wwd-red-100);
+    color: var(--wwd-red-700);
+}
+
+.code-area {
+    font-size: 12px !important;
+    line-height: 1.5;
+    tab-size: 2;
+}
+
+.input-group-text {
+    border-color: var(--wwd-border-strong);
+    background: var(--wwd-surface-2);
+    color: var(--wwd-text-3);
+}
+
+.form-control-color {
+    max-width: 48px;
+    padding: 4px;
+}
+
+/* Reject popup reasons */
+.reason-list {
+    display: grid;
+    gap: 8px;
+}
+
+.reason-option {
+    margin: 0;
+    cursor: pointer;
+}
+
+.reason-option input {
+    position: absolute;
+    opacity: 0;
+}
+
+.reason-option span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--wwd-border-strong);
+    border-radius: 8px;
+    color: var(--wwd-text);
+    font-size: 14px;
+    font-weight: 400;
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.reason-option span::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border: 2px solid var(--wwd-border-strong);
+    border-radius: 50%;
+}
+
+.reason-option:hover span {
+    background: var(--wwd-surface-2);
+}
+
+.reason-option input:checked + span {
+    border-color: var(--wwd-red);
+    background: var(--wwd-red-50);
+}
+
+.reason-option input:checked + span::before {
+    border-color: var(--wwd-red);
+    background: radial-gradient(var(--wwd-red) 45%, transparent 50%);
+}
+
+.reason-option input:focus-visible + span {
+    box-shadow: 0 0 0 4px var(--wwd-red-100);
+}
+
+.reject-mail-note {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--wwd-surface-2);
+    color: var(--wwd-text-2);
+    font-size: 13px;
+}
+
+/* ---------- Ready for approval list ---------- */
+.status-tabs .nav-link .count.is-alert {
+    background: var(--wwd-red);
+    color: #fff;
+}
+
+.approval-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 4px 0 0 52px;
+    color: var(--wwd-text-3);
+    font-size: 12.5px;
+}
+
+.approval-table .approval-meta a {
+    color: var(--wwd-text-2);
+    font-weight: 400;
+}
+
+.approval-table .approval-meta a:hover {
+    color: var(--wwd-red-600);
+}
+
+.approval-table .approval-meta i {
+    font-size: 10px;
+}
+
+.waiting {
+    font-weight: 600;
+    color: var(--wwd-text);
+}
+
+.waiting.is-late {
+    color: var(--wwd-amber);
+}
+
+.approval-table .btn-sm {
+    margin-left: 4px;
+}
+
+/* ---------- Notifications sent log (summary + expandable details) ---------- */
+.log-summary {
+    cursor: pointer;
+}
+
+.log-summary:focus-visible {
+    outline: 2px solid var(--wwd-red-100);
+    outline-offset: -2px;
+}
+
+.log-chevron {
+    display: inline-block;
+    color: var(--wwd-text-3);
+    font-size: 12px;
+    transition: transform .15s ease;
+}
+
+.log-group.is-open .log-chevron {
+    transform: rotate(90deg);
+}
+
+.log-group.is-open .log-summary > td {
+    background: var(--wwd-surface-2);
+}
+
+.log-group + .log-group .log-summary > td {
+    border-top: 1px solid var(--wwd-border);
+}
+
+.log-detail-body {
+    padding: 4px 16px 12px 52px;
+    background: var(--wwd-surface-2);
+    border-bottom: 1px solid var(--wwd-border);
+}
+
+.detail-table {
+    background: var(--wwd-surface);
+    border: 1px solid var(--wwd-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.detail-table > thead th {
+    background: var(--wwd-surface) !important;
+    font-size: 11px;
+}
+
+.detail-table > tbody td {
+    padding: 9px 12px !important;
+    font-size: 13px;
+}
+
+.click-yes {
+    color: var(--wwd-green);
+    font-weight: 600;
+}
+
+@media (max-width: 767.98px) {
+    .log-detail-body {
+        padding: 4px 8px 12px;
+    }
+}
