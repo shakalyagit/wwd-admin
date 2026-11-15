@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RiskRegisterController;
 use App\Http\Controllers\SubscriptionController;
@@ -78,6 +79,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('email-layout', [EmailTemplateController::class, 'email_layout'])->name('email_layout');
     Route::post('email-layout-action', [EmailTemplateController::class, 'email_layout_action'])->name('email_layout_action');
     Route::post('/email-layout-preview', [EmailTemplateController::class, 'email_layout_preview'])->name('email_layout_preview');
+
+    // Settings for the public directory site (social links, WWD's Google reviews): table site_settings
+    Route::get('settings', [SettingController::class, 'settings'])->name('settings');
+    Route::post('settings-action', [SettingController::class, 'settings_action'])->name('settings_action');
+    Route::post('/settings-google-test', [SettingController::class, 'settings_google_test'])->middleware('throttle:10,1')->name('settings_google_test');
 });
 
 // Public email click tracking (no login): records the click, then forwards to the email's real link

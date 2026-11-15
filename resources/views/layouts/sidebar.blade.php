@@ -17,6 +17,9 @@
             ['Notifications', 'notifications', 'bi-bell', ['notification*']],
             ['Email templates', 'email_templates', 'bi-envelope-paper', ['email-templates', 'add-email-template', 'edit-email-template/*', 'email-layout']],
         ],
+        'Public site' => [
+            ['Settings', 'settings', 'bi-gear', ['settings']],
+        ],
     ];
 
     $admin = Auth::user();
