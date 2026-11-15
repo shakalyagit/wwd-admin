@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RiskRegisterController;
@@ -84,6 +85,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('settings', [SettingController::class, 'settings'])->name('settings');
     Route::post('settings-action', [SettingController::class, 'settings_action'])->name('settings_action');
     Route::post('/settings-google-test', [SettingController::class, 'settings_google_test'])->middleware('throttle:10,1')->name('settings_google_test');
+
+    // Home banners: photos that rotate at the top of the public home page. Table site_banners, files in wwdbucket/banner/
+    Route::get('banners', [BannerController::class, 'banners'])->name('banners');
+    Route::get('add-banner', [BannerController::class, 'banner_create'])->name('banner_create');
+    Route::post('add-banner-action', [BannerController::class, 'banner_store'])->name('banner_store');
+    Route::get('edit-banner/{id}', [BannerController::class, 'edit_banner'])->name('edit_banner');
+    Route::post('edit-banner-action/{id}', [BannerController::class, 'edit_banner_action'])->name('edit_banner_action');
+    Route::post('/banner-status/{id}', [BannerController::class, 'banner_status'])->name('banner_status');
+    Route::post('/delete-banner/{id}', [BannerController::class, 'delete_banner'])->name('delete_banner');
 });
 
 // Public email click tracking (no login): records the click, then forwards to the email's real link

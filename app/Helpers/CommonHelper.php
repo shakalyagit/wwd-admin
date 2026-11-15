@@ -133,6 +133,19 @@ if (!function_exists('business_logo_url')) {
     }
 }
 
+if (!function_exists('banner_image_url')) {
+    // Public URL of a home banner photo (shared disk, banner/). UPLOAD_URL ends with the logo folder,
+    // so the banner folder is its sibling.
+    function banner_image_url($file)
+    {
+        if (empty($file)) {
+            return null;
+        }
+        $base = preg_replace('#/logo/?$#', '', rtrim(config('filesystems.disks.shared.url'), '/'));
+        return $base . '/banner/' . rawurlencode($file);
+    }
+}
+
 if (!function_exists('business_logo_thumb')) {
     // Logo thumbnail + business name. Falls back to an initial placeholder when there is
     // no logo or the image file is missing.

@@ -18,6 +18,7 @@
             ['Email templates', 'email_templates', 'bi-envelope-paper', ['email-templates', 'add-email-template', 'edit-email-template/*', 'email-layout']],
         ],
         'Public site' => [
+            ['Home banners', 'banners', 'bi-images', ['banners', 'add-banner', 'edit-banner/*']],
             ['Settings', 'settings', 'bi-gear', ['settings']],
         ],
     ];
