@@ -41,6 +41,11 @@ return [
         'business_login_url' => env('WWD_BUSINESS_LOGIN_URL', 'https://biz.worldweb-directory.com/login'),
         // Public base address of this admin app, used for email click-tracking links (/t/{token})
         'tracking_url' => env('WWD_TRACKING_URL', env('APP_URL')),
+        // The public site (WWD Listing), no trailing slash: business pages are {listing_url}/review/{wwd_url},
+        // their QR code {listing_url}/review/{wwd_url}/qr. Used for {{ListingURL}}, {{ReviewURL}}, {{QRURL}} in emails
+        'listing_url' => rtrim((string) env('WWD_LISTING_URL', 'https://worldweb-directory.com'), '/'),
+        // Owners' Get reviews page (WWD Business): review link, QR code, printable cards, badges. {{GetReviewsURL}}
+        'get_reviews_url' => env('WWD_GET_REVIEWS_URL', 'https://biz.worldweb-directory.com/get-reviews'),
     ],
 
 

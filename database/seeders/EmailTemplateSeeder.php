@@ -260,6 +260,26 @@ class EmailTemplateSeeder extends Seeder
                     ['name' => 'OfferPrice', 'sample' => '$9.90', 'description' => 'Offer monthly price'],
                     ['name' => 'UpgradeURL', 'sample' => 'https://biz.worldweb-directory.com/plans', 'description' => 'Upgrade / plans page']],
             ],
+            [
+                'template_key'    => 'review_kit',
+                'name'            => 'Review kit (get more reviews)',
+                'description'     => 'Sent once by WWD Admin\'s daily review kit job when a business is public on WorldWeb Directory: review link, QR code and the Get reviews page. At most 50 a day.',
+                'project'         => 'admin',
+                'trigger_type'    => 'scheduled',
+                'subject'         => 'Get more reviews for {{BusinessName}}',
+                'preheader'       => 'Your review link and QR code for {{BusinessName}} on WorldWeb Directory.',
+                'header_title'    => 'Get more reviews',
+                'header_subtitle' => '{{BusinessName}} is live on WorldWeb Directory',
+                'body'            => '<p>Hi {{BusinessOwnerName}},</p><p>Reviews are the first thing visitors look at on WWD. In your category, businesses with better ratings and more reviews are listed higher. Share this link with your customers:</p><p style="margin:0 0 18px; padding:12px 14px; background:#f8f9fb; border:1px solid #e3e6eb; border-radius:8px; word-break:break-all;"><a href="{{ReviewURL}}" style="color:{{BrandColor}};">{{ReviewURL}}</a></p><p style="text-align:center; margin:0 0 6px;"><img src="{{QRURL}}" width="160" height="160" alt="QR code that opens your review form" style="border:1px solid #e3e6eb; border-radius:8px;"></p><p style="text-align:center; color:#5b6474; font-size:13px; margin:0 0 18px;">Put this QR code on your counter or invoices: customers scan it with their phone camera.</p><p>In WWD for Business you&rsquo;ll find the link with WhatsApp and email buttons, printable review cards and a badge for your website.</p><p style="color:#5b6474; font-size:13px;">Ask every customer, not only the happy ones, and never offer anything in return for a review.</p>',
+                'button_text'     => 'Open Get reviews',
+                'button_url'      => '{{GetReviewsURL}}',
+                'footer_note'     => 'You’re receiving this email because {{BusinessName}} is listed on World Web Directory.',
+                'variables'       => [$owner, $business,
+                    ['name' => 'ReviewURL', 'sample' => 'https://worldweb-directory.com/review/sunrise-bakery?src=email', 'description' => 'Review link (opens the review form)'],
+                    ['name' => 'QRURL', 'sample' => 'https://worldweb-directory.com/review/sunrise-bakery/qr', 'description' => 'QR code picture for the review link'],
+                    ['name' => 'GetReviewsURL', 'sample' => 'https://biz.worldweb-directory.com/get-reviews', 'description' => 'Get reviews page in WWD Business'],
+                    ['name' => 'ListingURL', 'sample' => 'https://worldweb-directory.com/review/sunrise-bakery', 'description' => 'The public business page']],
+            ],
         ];
 
         foreach ($templates as $template) {

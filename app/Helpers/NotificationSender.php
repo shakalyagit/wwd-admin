@@ -14,6 +14,7 @@ class NotificationSender
     public const VERIFICATION_REMINDER = 'verification_reminder';
     public const BUSINESS_APPROVED = 'business_approved';
     public const BUSINESS_REJECTED = 'business_rejected';
+    public const REVIEW_KIT = 'review_kit';
 
     // Latest reminder due for a business submitted $days ago: day 0, 1, 3, 15, then every 15 days
     public static function verification_due_step(int $days): int
@@ -69,6 +70,24 @@ class NotificationSender
             'BusinessOwnerName' => $owner_name !== '' ? $owner_name : 'Business Owner',
             'LoginURL'          => config('services.wwd.business_login_url'),
             'ClaimURL'          => config('services.wwd.claim_url'),
+        ] + self::review_links($business);
+    }
+
+    /**
+     * The business's public page, review link and QR code on WWD Listing, and the owner's Get reviews page.
+     * ReviewURL carries ?src=email so the Listing site saves reviews that came from a WWD email.
+     * Empty when the business has no public address (wwd_url) or the caller didn't select it.
+     */
+    public static function review_links($business): array
+    {
+        $slug = trim((string) ($business->wwd_url ?? ''));
+        $page = $slug !== '' ? config('services.wwd.listing_url') . '/review/' . rawurlencode($slug) : '';
+
+        return [
+            'ListingURL'    => $page,
+            'ReviewURL'     => $page !== '' ? $page . '?src=email' : '',
+            'QRURL'         => $page !== '' ? $page . '/qr' : '',
+            'GetReviewsURL' => config('services.wwd.get_reviews_url'),
         ];
     }
 

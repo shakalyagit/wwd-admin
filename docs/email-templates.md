@@ -69,5 +69,12 @@ Mail security scanners and bots are not counted.
 | `premium_welcome` | WWD Business | Upgraded to Premium | BusinessOwnerName, BusinessName, LoginURL, Amount |
 | `profile_action_needed` | WWD Admin (scheduler) | Profile hidden from searches | BusinessOwnerName, BusinessName, LoginURL |
 | `premium_promotion` (custom) | WWD Admin | Premium offer campaign | BusinessOwnerName, BusinessName, RegularPrice, OfferPrice, UpgradeURL |
+| `review_kit` | WWD Admin (scheduler) | Once per business when its profile is public (approved, and claimed or Featured), the morning after; max 50 a day (`notifications:review-kit`) | BusinessOwnerName, BusinessName, ReviewURL, QRURL, GetReviewsURL, ListingURL |
 
 The up-to-date list, with sample values, is always in WWD Admin → Email templates.
+
+Every business email sent through `NotificationSender` can also use **ListingURL** (the public business page),
+**ReviewURL** (its review link, tagged `?src=email` so WWD Listing records reviews that came from an email), **QRURL**
+(a QR code picture for the review link, PNG) and **GetReviewsURL** (the owner's Get reviews page in WWD Business).
+They come from `WWD_LISTING_URL` and `WWD_GET_REVIEWS_URL`. The first three only work for businesses that are public
+on WorldWeb Directory: don't use them in emails sent before approval.

@@ -17,6 +17,11 @@ class Kernel extends ConsoleKernel
             ->dailyAt('23:59')
             ->timezone('UTC')
             ->withoutOverlapping();
+        // Review kit email, once per public business, max 50 a run (on the live host cron calls it directly)
+        $schedule->command('notifications:review-kit')
+            ->dailyAt('04:00')
+            ->timezone('UTC')
+            ->withoutOverlapping();
     }
 
     /**
