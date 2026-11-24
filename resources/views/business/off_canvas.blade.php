@@ -16,8 +16,8 @@
                     <label class="form-label">Profile score</label>
                     <select name="profile_band" class="form-select">
                         <option value="">Select</option>
-                        <option value="green">Green – verified + logo (ready for approval)</option>
-                        <option value="yellow">Yellow – verified, no logo</option>
+                        <option value="green">Green – verified + description (ready for approval)</option>
+                        <option value="yellow">Yellow – verified, no description</option>
                         <option value="red">Red – not verified</option>
                     </select>
                 </div>

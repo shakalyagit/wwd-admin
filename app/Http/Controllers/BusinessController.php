@@ -287,7 +287,8 @@ class BusinessController extends Controller
             ->with('success', '"' . trim($business->business_name) . '" approved.');
     }
 
-    // Businesses that meet the approval rule (owner verified + logo uploaded) and wait for an admin decision, oldest first
+    // Businesses that meet the approval rule (owner verified + a business description) and wait for an admin decision,
+    // oldest first. The logo isn't required: the public page shows the business's initials until one is uploaded.
     public function business_approval_queue()
     {
         $businesses = $this->ready_for_approval_query($this->business_list_query())
@@ -301,17 +302,12 @@ class BusinessController extends Controller
         return view('business.approval_queue', compact('businesses', 'owners'));
     }
 
-    // Owner verified + logo uploaded + not approved or rejected yet
+    // Owner verified (site verified by email code) + a business description + not approved or rejected yet
     private function ready_for_approval_query($query)
     {
         return $query->where('businesses.is_claimed', 1)
             ->where('businesses.is_admin_verified', 0)
-            ->whereExists(function ($q) {
-                $q->selectRaw(1)->from('media')
-                    ->whereColumn('media.ref_id', 'businesses.business_id')
-                    ->where('media.ref_table', 'businesses')
-                    ->where('media.file_type', 'logo');
-            });
+            ->whereRaw("CHAR_LENGTH(TRIM(COALESCE(businesses.business_desc, ''))) >= ?", [BUSINESS_MIN_DESCRIPTION]);
     }
 
     public function business_reject(Request $request, Business $business)
@@ -362,10 +358,11 @@ class BusinessController extends Controller
         $query = $this->business_list_query();
 
         // Profile score colour band (see business_profile_score())
+        $has_description = "CHAR_LENGTH(TRIM(COALESCE(businesses.business_desc, ''))) >= " . BUSINESS_MIN_DESCRIPTION;
         if ($request->profile_band === 'green') {
-            $query->where('businesses.is_claimed', 1)->whereNotNull('media.file_path');
+            $query->where('businesses.is_claimed', 1)->whereRaw($has_description);
         } elseif ($request->profile_band === 'yellow') {
-            $query->where('businesses.is_claimed', 1)->whereNull('media.file_path');
+            $query->where('businesses.is_claimed', 1)->whereRaw('NOT (' . $has_description . ')');
         } elseif ($request->profile_band === 'red') {
             $query->where('businesses.is_claimed', '!=', 1);
         }

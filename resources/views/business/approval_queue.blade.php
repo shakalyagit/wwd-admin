@@ -4,7 +4,7 @@
 <div class="content-header">
     <div>
         <h5>Businesses</h5>
-        <p class="page-subtitle">Ready for approval: owner verified and logo uploaded, waiting for your decision. Oldest first.</p>
+        <p class="page-subtitle">Ready for approval: owner verified the website and wrote a business description, waiting for your decision. Oldest first.</p>
     </div>
     <a href="{{ route('business_create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add business</a>
 </div>
@@ -34,6 +34,9 @@
                 <tr>
                     <td>
                         {!! business_logo_thumb($business->business_name, $business->logo_path) !!}
+                        @unless ($business->logo_path)
+                            <span class="badge bg-warning-subtle text-warning-emphasis ms-1" title="No logo yet: the public page shows the business's initials. The approved email asks the owner to add one.">No logo</span>
+                        @endunless
                         <div class="approval-meta">
                             @if ($business->business_website)
                             <a href="{{ $business->business_website }}" target="_blank" rel="noopener">{{ preg_replace('#^https?://(www\.)?#', '', rtrim($business->business_website, '/')) }} <i class="bi bi-box-arrow-up-right"></i></a>
@@ -73,7 +76,7 @@
     <div class="text-center py-5 px-3">
         <div class="kpi-icon green mx-auto mb-3" style="width: 48px; height: 48px; font-size: 22px;"><i class="bi bi-check2-all"></i></div>
         <h5 class="mb-1">All caught up</h5>
-        <p class="text-600 mb-0">No businesses are waiting for approval. A business appears here once its owner has verified it and uploaded a logo.</p>
+        <p class="text-600 mb-0">No businesses are waiting for approval. A business appears here once its owner has verified the website and written a business description.</p>
     </div>
     @endif
 </div>

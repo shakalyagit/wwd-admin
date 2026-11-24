@@ -161,16 +161,23 @@ if (!function_exists('business_logo_thumb')) {
     }
 }
 
+// Shortest business description that counts (profile score and the "Ready for approval" rule)
+if (!defined('BUSINESS_MIN_DESCRIPTION')) {
+    define('BUSINESS_MIN_DESCRIPTION', 50);
+}
+
 if (!function_exists('business_profile_score')) {
     /**
      * Profile completeness score (max 100) and colour band for a business.
      * $b needs: is_claimed, is_admin_verified, business_phone, business_desc and the social *_url fields.
-     * Green = submitted + owner verified + logo uploaded (ready for admin approval), Yellow = verified without logo,
-     * Red = not verified. Admin approval is not part of the score.
+     * Green = owner verified + a business description (ready for admin approval), Yellow = verified without a
+     * description, Red = not verified. The logo adds to the score but isn't needed for approval.
+     * Admin approval is not part of the score.
      */
     function business_profile_score($b, $has_logo, $has_hours, $has_address)
     {
         $verified = $b->is_claimed == 1;
+        $has_description = mb_strlen(trim((string) $b->business_desc)) >= BUSINESS_MIN_DESCRIPTION;
         $social_links = collect(['facebook_url', 'instragram_url', 'youtube_url', 'twitter_url', 'linkedin_url'])
             ->filter(fn($field) => trim((string) $b->$field) !== '')
             ->count();
@@ -183,13 +190,13 @@ if (!function_exists('business_profile_score')) {
             ['Business hours', $has_hours ? 10 : 0, 10],
             ['Address with city', $has_address ? 10 : 0, 10],
             ['Phone number', trim((string) $b->business_phone) !== '' ? 10 : 0, 10],
-            ['Description (50+ characters)', mb_strlen(trim((string) $b->business_desc)) >= 50 ? 10 : 0, 10],
+            ['Description (' . BUSINESS_MIN_DESCRIPTION . '+ characters)', $has_description ? 10 : 0, 10],
             ['Social links (1 = 5, 2+ = 10)', $social_links >= 2 ? 10 : ($social_links == 1 ? 5 : 0), 10],
         ];
 
         return [
             'score' => array_sum(array_column($items, 1)),
-            'band'  => $verified && $has_logo ? 'green' : ($verified ? 'yellow' : 'red'),
+            'band'  => $verified && $has_description ? 'green' : ($verified ? 'yellow' : 'red'),
             'items' => $items,
         ];
     }
@@ -202,7 +209,7 @@ if (!function_exists('profile_score_badge')) {
         $tooltip = collect($profile['items'])
             ->map(fn($item) => ($item[1] >= $item[2] ? '✓ ' : ($item[1] > 0 ? '◐ ' : '✗ ')) . $item[0] . ': ' . $item[1] . '/' . $item[2])
             ->join("\n");
-        $labels = ['green' => 'Verified + logo, ready for approval', 'yellow' => 'Verified, logo missing', 'red' => 'Not verified'];
+        $labels = ['green' => 'Verified + description, ready for approval', 'yellow' => 'Verified, description missing', 'red' => 'Not verified'];
 
         return '<span class="score-ring is-' . $profile['band'] . '" style="--score: ' . $profile['score'] . '" title="'
             . e('Profile score ' . $profile['score'] . '/100 · ' . $labels[$profile['band']] . "\n" . $tooltip) . '">'

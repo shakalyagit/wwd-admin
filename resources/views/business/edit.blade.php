@@ -246,7 +246,7 @@
     </div>
     <div class="col-md-6">
         @php
-            $band_text = ['green' => 'Verified + logo uploaded: ready for admin approval', 'yellow' => 'Verified, but no logo yet: not ready for approval', 'red' => 'Not verified by the owner yet: not ready for approval'];
+            $band_text = ['green' => 'Verified + business description: ready for admin approval', 'yellow' => 'Verified, but no business description yet: not ready for approval', 'red' => 'Not verified by the owner yet: not ready for approval'];
         @endphp
         <div class="card mb-3">
             <div class="card-header bg-300">
