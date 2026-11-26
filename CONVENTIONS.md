@@ -47,7 +47,7 @@ Admin panel for **World Web Directory (WWD)**, a business listing directory. Adm
 - Sent log (Notifications) shows one row per day + template; details load via `notification_details`.
 - Send business emails via `App\Helpers\NotificationSender::send($template, $business, $owner)`; it fills the business placeholders, renders, mails, logs, and skips inactive templates. New reminder types = template row + command + schedule entry.
 - `businesses.notifications_paused` stops all reminders for a business.
-- Verification reminder: `notifications:verification-reminders` (`--dry-run`), daily at 23:59 UTC, day 0/1/3/15 then every 15 days while `is_claimed = 0`. Needs a server cron running `php artisan schedule:run` every minute.
+- Verification reminder: `notifications:verification-reminders` (`--dry-run`), daily at 23:59 UTC, day 0/1/3/15 then every 15 days while `is_claimed = 0`. On production (shared cPanel) the Laravel scheduler can't start it (`schedule:run` runs but the command never fires), so cPanel calls the command directly: `59 23 * * * php artisan notifications:verification-reminders >> storage/logs/reminders.log 2>&1`. Running it more than once a day is safe: a step is never sent twice.
 
 ## Profile score
 - `business_profile_score($business, $has_logo, $has_hours, $has_address)` in `CommonHelper.php` is the single source of the 100-point score + colour band (green = submitted + owner verified + logo uploaded, i.e. ready for admin approval; yellow = verified, no logo; red = not verified). Admin approval is not scored; `profile_score_badge()` renders the circle. The list's SQL band filter in `business_list_filter` must match it.
