@@ -7,6 +7,7 @@ use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\RiskRegisterController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
@@ -42,6 +43,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/users', [UserController::class, 'users'])->name('users');
     Route::post('/users-status-update', [UserController::class, 'users_status_update'])->name('users_status_update');
+    Route::get('/reviews', [ReviewController::class, 'reviews'])->name('reviews');
 
     //Old Business Listing Route
     Route::get('old-business-list', [BusinessController::class, 'old_business_list'])->name('old_business_list');

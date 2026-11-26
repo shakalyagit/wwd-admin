@@ -11,6 +11,7 @@
         ],
         'Customers' => [
             ['Users', 'users', 'bi-people', ['users']],
+            ['Reviews', 'reviews', 'bi-star', ['reviews']],
             ['Subscriptions', 'subscriptions', 'bi-credit-card', ['subscriptions', 'subscriptions/*']],
         ],
         'Engagement' => [
