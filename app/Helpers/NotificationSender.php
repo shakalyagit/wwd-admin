@@ -14,6 +14,39 @@ class NotificationSender
     public const VERIFICATION_REMINDER = 'verification_reminder';
     public const BUSINESS_APPROVED = 'business_approved';
     public const BUSINESS_REJECTED = 'business_rejected';
+    public const LISTING_INVITE = 'listing_invite';
+
+    // Claim invites for admin-listed businesses: day 0 (sent when the admin saves it), 3, 10, 30, then stop
+    public const LISTING_INVITE_STEPS = [0, 3, 10, 30];
+
+    public static function listing_due_step(int $days): int
+    {
+        $due = 0;
+        foreach (self::LISTING_INVITE_STEPS as $step) {
+            if ($days >= $step) {
+                $due = $step;
+            }
+        }
+        return $due;
+    }
+
+    // Next invite after $days, or null once the last one is due
+    public static function listing_next_step(int $days): ?int
+    {
+        foreach (self::LISTING_INVITE_STEPS as $step) {
+            if ($step > $days) {
+                return $step;
+            }
+        }
+        return null;
+    }
+
+    // Public unsubscribe page for a business (route email_unsubscribe, outside the login), signed so ids can't be guessed
+    public static function unsubscribe_url($business_id): string
+    {
+        $path = \Illuminate\Support\Facades\URL::signedRoute('email_unsubscribe', ['business_id' => $business_id], null, false);
+        return rtrim(config('services.wwd.tracking_url'), '/') . $path;
+    }
 
     // Latest reminder due for a business submitted $days ago: day 0, 1, 3, 15, then every 15 days
     public static function verification_due_step(int $days): int
@@ -69,6 +102,7 @@ class NotificationSender
             'BusinessOwnerName' => $owner_name !== '' ? $owner_name : 'Business Owner',
             'LoginURL'          => config('services.wwd.business_login_url'),
             'ClaimURL'          => config('services.wwd.claim_url'),
+            'UnsubscribeURL'    => !empty($business->business_id) ? self::unsubscribe_url($business->business_id) : '',
         ];
     }
 

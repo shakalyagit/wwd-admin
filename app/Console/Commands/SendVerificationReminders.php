@@ -18,6 +18,9 @@ class SendVerificationReminders extends Command
 
     public function handle(): int
     {
+        // The production cron runs only this command, so it also runs the admin listing invites
+        $this->call('notifications:listing-invites', ['--dry-run' => $this->option('dry-run')]);
+
         $template = EmailTemplate::where('template_key', NotificationSender::VERIFICATION_REMINDER)->first();
         if (!$template || !$template->is_active) {
             $this->info('Verification reminder template is missing or inactive. Nothing sent.');
@@ -31,6 +34,8 @@ class SendVerificationReminders extends Command
 
         Business::where('is_claimed', 0)
             ->where('notifications_paused', 0)
+            // Admin-listed businesses get the listing invite instead ("thank you for submitting" doesn't fit them)
+            ->where('is_admin_posted', 0)
             ->where(function ($q) {
                 // Rejected businesses can't be listed anyway
                 $q->whereNull('is_admin_verified')->orWhere('is_admin_verified', '!=', 2);

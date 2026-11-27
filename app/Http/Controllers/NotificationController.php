@@ -58,7 +58,9 @@ class NotificationController extends Controller
     {
         $template = EmailTemplate::where('template_key', NotificationSender::VERIFICATION_REMINDER)->first();
 
+        // Admin-listed businesses follow the listing invite schedule instead (see Admin listings)
         $businesses = Business::where('is_claimed', 0)
+            ->where('is_admin_posted', 0)
             ->select('business_id', 'business_name', 'business_email', 'is_admin_verified', 'notifications_paused', 'created_at')
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->where(function ($q) use ($request) {
@@ -133,6 +135,25 @@ class NotificationController extends Controller
         }
 
         return redirect()->away(preg_match('#^https?://#i', (string) $log->target_url) ? $log->target_url : $fallback);
+    }
+
+    // Public (no login): the email footer's unsubscribe link. GET shows a confirm button; POST pauses all emails.
+    public function email_unsubscribe(Request $request, $business_id)
+    {
+        // The signature covers the path only, so the same link works for GET and the confirm POST
+        abort_unless($request->hasValidSignature(false), 403, 'This unsubscribe link is not valid.');
+
+        $business = Business::find($business_id, ['business_id', 'business_name', 'business_email', 'notifications_paused']);
+        abort_unless($business, 404);
+
+        $done = (bool) $business->notifications_paused;
+        if ($request->isMethod('post') && !$done) {
+            // businesses is shared with the public site; don't touch its updated_at
+            Business::where('business_id', $business->business_id)->update(['notifications_paused' => 1]);
+            $done = true;
+        }
+
+        return view('notifications.unsubscribe', compact('business', 'done'));
     }
 
     public function notification_pause_toggle($business_id)

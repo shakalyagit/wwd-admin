@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\AdminListingController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\EmailTemplateController;
@@ -36,10 +37,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/business-list-filter', [BusinessController::class, 'business_list_filter'])->name('business_list_filter');
     Route::post('/check-new-business', [BusinessController::class, 'check_new_business'])->name('check_new_business');
 
-    Route::get('/business/create', [BusinessController::class, 'business_create'])->name('business_create');
-    Route::post('/business/store', [BusinessController::class, 'business_store'])->name('business_store');
-    Route::post('/business/address', [BusinessController::class, 'business_address'])->name('business_address');
-    Route::post('/business/logo', [BusinessController::class, 'business_logo'])->name('business_logo');
+    // Admin listings: businesses found on other directories, listed by an admin and invited to claim
+    Route::get('/business/create', [AdminListingController::class, 'business_create'])->name('business_create');
+    Route::post('/business/store', [AdminListingController::class, 'business_store'])->name('business_store');
+    Route::post('/business/check', [AdminListingController::class, 'business_check'])->name('business_check');
+    Route::get('/admin-listings', [AdminListingController::class, 'admin_listings'])->name('admin_listings');
+    Route::post('/admin-listing-resend/{business_id}', [AdminListingController::class, 'admin_listing_resend'])->name('admin_listing_resend');
 
     Route::get('/users', [UserController::class, 'users'])->name('users');
     Route::post('/users-status-update', [UserController::class, 'users_status_update'])->name('users_status_update');
@@ -103,6 +106,13 @@ Route::get('/t/{token}', [NotificationController::class, 'email_click'])
     ->where('token', '[A-Za-z0-9]{40}')
     ->middleware('throttle:60,1')
     ->name('email_click');
+
+// Public unsubscribe (no login, signed link from the email footer). GET only shows a confirm button, so mail
+// scanners that open links can't unsubscribe anyone; the POST does it.
+Route::match(['get', 'post'], '/unsubscribe/{business_id}', [NotificationController::class, 'email_unsubscribe'])
+    ->whereNumber('business_id')
+    ->middleware('throttle:30,1')
+    ->name('email_unsubscribe');
 
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/', [AdminAuthController::class, 'admin_login'])->name('login');

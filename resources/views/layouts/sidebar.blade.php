@@ -5,7 +5,8 @@
             ['Dashboard', 'dashboard', 'bi-grid-1x2', ['dashboard']],
         ],
         'Directory' => [
-            ['Businesses', 'business_list', 'bi-building', ['business-list', 'business-approval-queue', 'edit-business/*', 'business/*']],
+            ['Businesses', 'business_list', 'bi-building', ['business-list', 'business-approval-queue', 'edit-business/*']],
+            ['Admin listings', 'admin_listings', 'bi-building-add', ['admin-listings', 'business/create']],
             ['Old businesses', 'old_business_list', 'bi-archive', ['old-business-list', 'edit-old-business/*']],
             ['Categories', 'category_count', 'bi-tags', ['category-count', 'category/*/businesses', 'add-category']],
         ],

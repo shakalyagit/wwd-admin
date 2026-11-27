@@ -260,6 +260,32 @@ class EmailTemplateSeeder extends Seeder
                     ['name' => 'OfferPrice', 'sample' => '$9.90', 'description' => 'Offer monthly price'],
                     ['name' => 'UpgradeURL', 'sample' => 'https://biz.worldweb-directory.com/plans', 'description' => 'Upgrade / plans page']],
             ],
+            [
+                'template_key'    => 'listing_invite',
+                'name'            => 'Business listed by WWD (claim invite)',
+                'description'     => 'Sent to a business an admin listed from another directory: on the day it is added, then day 3, 10 and 30 while it is not claimed.',
+                'project'         => 'admin',
+                'trigger_type'    => 'scheduled',
+                'subject'         => '{{BusinessName}} is now listed on World Web Directory',
+                'preheader'       => 'Claim your free listing in 2 simple steps and reach more customers.',
+                'header_title'    => 'Your business is listed on WWD',
+                'header_subtitle' => 'Claim it free and take control of your profile',
+                'body'            => '<p><strong>Hello,</strong></p>'
+                    . '<p>Good news: <strong>{{BusinessName}}</strong> is now listed on World Web Directory, where customers search for businesses like yours every day.</p>'
+                    . '<p>Claim your business with a few simple steps to update all your details:</p>'
+                    . '<ul><li>Add your logo, photos and a description of your services</li>'
+                    . '<li>Set your address, phone number and opening hours</li>'
+                    . '<li>Reply to customer reviews and build trust</li>'
+                    . '<li>Get more visibility and more customers</li></ul>'
+                    . '<p>Claiming is free and only takes a minute: we send a one-time code to this email address to confirm you own the business.</p>',
+                'button_text'     => 'Claim my business',
+                'button_url'      => '{{ClaimURL}}',
+                'footer_note'     => 'You’re receiving this because {{BusinessName}} is listed on WWD. <a href="{{UnsubscribeURL}}">Unsubscribe</a>',
+                'variables'       => [$owner, $business,
+                    ['name' => 'ClaimURL', 'sample' => 'https://biz.worldweb-directory.com/claim-business', 'description' => 'Claim business page'],
+                    ['name' => 'UnsubscribeURL', 'sample' => 'https://webadmin.worldweb-directory.com/unsubscribe/123', 'description' => 'Stops all reminder emails for this business']],
+                'starts_at'       => now()->startOfDay(),
+            ],
         ];
 
         foreach ($templates as $template) {

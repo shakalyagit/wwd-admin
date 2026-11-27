@@ -7,7 +7,7 @@ Admin panel for **World Web Directory (WWD)**, a business listing directory. Adm
 - Laravel 10, PHP 8.1, MySQL; Blade server-rendered views
 - UI: Falcon-style Bootstrap 5 theme + jQuery (`$.ajax`, DataTables, select2, flatpickr). Vendor JS/CSS live in `public/assets/vendors` (no npm build for these).
 - `intervention/image` (GD) for logo resizing; `rinvex/countries` (`countries()` helper)
-- Mail: `BusinessApprovedMail` sent on approval
+- Mail: business emails go through `NotificationSender` + email templates (see below)
 
 ## UI
 - Design layer: `public/assets/css/wwd-admin.css` (tokens on `:root`, WWD red `#e53935`, Inter, Bootstrap Icons `bi-*`). Restyle there; no inline `<style>` hacks, no Font Awesome.
@@ -48,6 +48,13 @@ Admin panel for **World Web Directory (WWD)**, a business listing directory. Adm
 - Send business emails via `App\Helpers\NotificationSender::send($template, $business, $owner)`; it fills the business placeholders, renders, mails, logs, and skips inactive templates. New reminder types = template row + command + schedule entry.
 - `businesses.notifications_paused` stops all reminders for a business.
 - Verification reminder: `notifications:verification-reminders` (`--dry-run`), daily at 23:59 UTC, day 0/1/3/15 then every 15 days while `is_claimed = 0`. On production (shared cPanel) the Laravel scheduler can't start it (`schedule:run` runs but the command never fires), so cPanel calls the command directly: `59 23 * * * php artisan notifications:verification-reminders >> storage/logs/reminders.log 2>&1`. Running it more than once a day is safe: a step is never sent twice.
+
+## Admin listings (outreach)
+- **Add business** (`business_create` → `AdminListingController`) lists a business found on another directory: live at once (`is_admin_verified = 1`, `is_admin_posted = 1`, `is_claimed = 0`), hours Mon–Sat 8:00–23:00 and Sunday closed, owner account with a random password (the owner sets one when claiming on WWD Business).
+- Website (by domain) and name (case-insensitive / `wwd_url` slug) must be unique across current `businesses`; `business_check` gives the live warning.
+- `admin_listings` (admin-owned) keeps source site, `added_by`, `claimed_at`; never shown publicly.
+- Claim invite template `listing_invite`: day 0 on save, then 3/10/30 via `notifications:listing-invites`, which the daily `notifications:verification-reminders` calls (production cron runs only that). Admin-posted businesses are excluded from the verification reminder.
+- `{{UnsubscribeURL}}` (every business email) is a signed public link (`email_unsubscribe`): GET shows a confirm button, POST sets `notifications_paused`.
 
 ## Profile score
 - `business_profile_score($business, $has_logo, $has_hours, $has_address)` in `CommonHelper.php` is the single source of the 100-point score + colour band (green = submitted + owner verified + logo uploaded, i.e. ready for admin approval; yellow = verified, no logo; red = not verified). Admin approval is not scored; `profile_score_badge()` renders the circle. The list's SQL band filter in `business_list_filter` must match it.
