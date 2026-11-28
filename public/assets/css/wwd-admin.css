@@ -2244,8 +2244,20 @@ button.kpi-filter.is-active .kpi-label {
 }
 
 .cat-parent:hover .cat-add-sub,
-.cat-add-sub:focus-visible {
+.cat-add-sub:focus-visible,
+.cat-child:hover .cat-add-sub {
     opacity: 1;
+}
+
+/* Edit sits next to "add sub-category" on main rows, alone on sub-category rows */
+.cat-add-sub + .cat-add-sub {
+    margin-left: 6px;
+}
+
+.cat-child-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .cat-add-sub:hover {

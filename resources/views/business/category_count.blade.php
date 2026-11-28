@@ -97,6 +97,8 @@
                             </span>
                             <a href="{{ route('category_create', ['parent' => $group['id']]) }}" class="cat-add-sub"
                                 title="Add a sub-category to {{ $group['name'] }}"><i class="bi bi-plus-lg"></i></a>
+                            <a href="{{ route('category_edit', encrypt($group['id'])) }}" class="cat-add-sub"
+                                title="Edit {{ $group['name'] }}" aria-label="Edit {{ $group['name'] }}"><i class="bi bi-pencil"></i></a>
                         </div>
                     </td>
                     @include('business.partials.category_stat_cells', ['stats' => $group['stats'], 'link' => route('category_businesses', $group['id'])])
@@ -114,7 +116,11 @@
                 @foreach ($group['subs'] as $sub)
                 <tr class="cat-child" {!! $row_data($sub['name'], $sub['stats']) !!}>
                     <td>
-                        <a href="{{ route('category_businesses', $sub['id']) }}" class="cat-child-name">{{ $sub['name'] }}</a>
+                        <div class="cat-child-cell">
+                            <a href="{{ route('category_businesses', $sub['id']) }}" class="cat-child-name">{{ $sub['name'] }}</a>
+                            <a href="{{ route('category_edit', encrypt($sub['id'])) }}" class="cat-add-sub"
+                                title="Edit {{ $sub['name'] }}" aria-label="Edit {{ $sub['name'] }}"><i class="bi bi-pencil"></i></a>
+                        </div>
                     </td>
                     @include('business.partials.category_stat_cells', ['stats' => $sub['stats'], 'link' => route('category_businesses', $sub['id'])])
                 </tr>

@@ -73,6 +73,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('category/{category_id}/businesses', [BusinessController::class, 'category_businesses'])->name('category_businesses');
     Route::get('add-category', [CategoryController::class, 'category_create'])->name('category_create');
     Route::post('add-category-action', [CategoryController::class, 'category_store'])->name('category_store');
+    Route::get('edit-category/{category_id}', [CategoryController::class, 'category_edit'])->name('category_edit');
+    Route::post('edit-category-action/{category_id}', [CategoryController::class, 'category_update'])->name('category_update');
     Route::get('/category-check-name', [CategoryController::class, 'category_check_name'])->name('category_check_name');
 
     // Notification Routes

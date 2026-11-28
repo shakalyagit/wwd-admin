@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Business;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,29 +25,7 @@ class CategoryController extends Controller
 
     public function category_store(Request $request)
     {
-        $request->validate([
-            'type'          => 'required|in:main,sub',
-            'cat_name'      => 'required|string|max:100',
-            'parent_cat_id' => 'required_if:type,sub|nullable|integer',
-            'cat_info'      => 'nullable|string|max:2000',
-            'cat_meta_desc' => 'nullable|string|max:255',
-            'cat_keyword'   => 'nullable|string|max:225',
-            'cat_icon'      => [
-                'nullable', 'string', 'max:20000',
-                // Inline SVG is rendered on the public site: only allow plain markup
-                function ($attribute, $value, $fail) {
-                    if (!preg_match('/^\s*<svg[\s>]/i', $value) || !preg_match('/<\/svg>\s*$/i', $value)) {
-                        $fail('The icon must be SVG code starting with <svg and ending with </svg>.');
-                    } elseif (preg_match('/<script|<foreignobject|\son\w+\s*=|javascript:/i', $value)) {
-                        $fail('The icon contains scripts or event handlers, which are not allowed.');
-                    }
-                },
-            ],
-            'is_feature'    => 'nullable|boolean',
-        ], [
-            'cat_name.required'         => 'Enter a category name.',
-            'parent_cat_id.required_if' => 'Choose the main category this sub-category belongs to.',
-        ]);
+        $request->validate($this->category_rules(), $this->category_messages());
 
         $name = trim(preg_replace('/\s+/', ' ', $request->cat_name));
         $is_sub = $request->type === 'sub';
@@ -97,6 +76,131 @@ class CategoryController extends Controller
         return redirect()->route('category_count', ['search' => $category->cat_name])->with('success', $message);
     }
 
+    public function category_edit($category_id)
+    {
+        $category = Category::findOrFail($this->decrypt_id($category_id));
+        $parents = Category::where('parent_cat_id', 0)
+            ->where('category_id', '!=', $category->category_id)
+            ->select('category_id', 'cat_name', 'cat_path')
+            ->orderBy('cat_name')
+            ->get();
+        $selected_parent = $parents->firstWhere('category_id', $category->parent_cat_id);
+        $sub_count = $category->parent_cat_id == 0 ? Category::where('parent_cat_id', $category->category_id)->count() : 0;
+        $business_count = Business::where('category_id', $category->category_id)->count();
+
+        return view('categories.create', compact('category', 'parents', 'selected_parent', 'sub_count', 'business_count'));
+    }
+
+    public function category_update(Request $request, $category_id)
+    {
+        $category = Category::findOrFail($this->decrypt_id($category_id));
+        $is_sub = $category->parent_cat_id != 0;
+
+        // The type can't change: a main category keeps its sub-categories, a sub-category stays inside a main one
+        $request->merge(['type' => $is_sub ? 'sub' : 'main']);
+        $rules = $this->category_rules() + ['update_path' => 'nullable|boolean'];
+        // Some old main categories store an image file name (e.g. "default.png"): it can stay as it is
+        if (trim((string) $request->cat_icon) === trim((string) $category->cat_icon)) {
+            $rules['cat_icon'] = 'nullable|string';
+        }
+        $request->validate($rules, $this->category_messages());
+
+        $name = trim(preg_replace('/\s+/', ' ', $request->cat_name));
+        $parent = null;
+        if ($is_sub) {
+            $parent = Category::where('category_id', $request->parent_cat_id)->where('parent_cat_id', 0)->first();
+            if (!$parent) {
+                return redirect()->back()->withInput()->withErrors(['parent_cat_id' => 'That main category no longer exists.']);
+            }
+        }
+        $parent_id = $parent ? $parent->category_id : 0;
+        $moved = $is_sub && $parent_id != $category->parent_cat_id;
+
+        // The web address only changes when asked, or when a sub-category moves to another main category
+        $old_path = trim((string) $category->cat_path);
+        if ($request->boolean('update_path')) {
+            $path = $this->category_path($name, $parent);
+        } elseif ($moved) {
+            $path = trim($parent->cat_path) . '/' . (Str::afterLast($old_path, '/') ?: Str::slug($name));
+        } else {
+            $path = $old_path;
+        }
+
+        if ($error = $this->duplicate_error($name, $parent_id, $path, $category->category_id)) {
+            return redirect()->back()->withInput()->withErrors(['cat_name' => $error]);
+        }
+
+        DB::transaction(function () use ($request, $category, $name, $is_sub, $parent_id, $path, $old_path) {
+            $category->cat_name = $name;
+            $category->parent_cat_id = $parent_id;
+            $category->cat_info = $request->cat_info;
+            $category->cat_meta_desc = $request->cat_meta_desc ?? '';
+            $category->cat_keyword = $request->cat_keyword ?? '';
+            $category->cat_path = $path;
+            if ($is_sub) {
+                $category->cat_child = $parent_id . '/' . $category->category_id;
+            } else {
+                $category->cat_icon = $request->cat_icon ? trim($request->cat_icon) : null;
+                $category->is_feature = $request->boolean('is_feature') ? 1 : 0;
+            }
+            $category->save();
+
+            // A main category's new address carries over to its sub-categories ("old-main/sub" → "new-main/sub")
+            if (!$is_sub && $path !== $old_path && $old_path !== '') {
+                foreach (Category::where('parent_cat_id', $category->category_id)->get(['category_id', 'cat_path']) as $child) {
+                    $child_path = trim((string) $child->cat_path);
+                    if (Str::startsWith($child_path, $old_path . '/')) {
+                        $child->cat_path = $path . substr($child_path, strlen($old_path));
+                        $child->save();
+                    }
+                }
+            }
+        });
+
+        return redirect()->route('category_count', ['search' => $name])->with('success', 'Category "' . $name . '" updated.');
+    }
+
+    private function category_rules()
+    {
+        return [
+            'type'          => 'required|in:main,sub',
+            'cat_name'      => 'required|string|max:100',
+            'parent_cat_id' => 'required_if:type,sub|nullable|integer',
+            'cat_info'      => 'nullable|string|max:2000',
+            'cat_meta_desc' => 'nullable|string|max:255',
+            'cat_keyword'   => 'nullable|string|max:225',
+            'cat_icon'      => [
+                'nullable', 'string', 'max:20000',
+                // Inline SVG is rendered on the public site: only allow plain markup
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('/^\s*<svg[\s>]/i', $value) || !preg_match('/<\/svg>\s*$/i', $value)) {
+                        $fail('The icon must be SVG code starting with <svg and ending with </svg>.');
+                    } elseif (preg_match('/<script|<foreignobject|\son\w+\s*=|javascript:/i', $value)) {
+                        $fail('The icon contains scripts or event handlers, which are not allowed.');
+                    }
+                },
+            ],
+            'is_feature'    => 'nullable|boolean',
+        ];
+    }
+
+    private function category_messages()
+    {
+        return [
+            'cat_name.required'         => 'Enter a category name.',
+            'parent_cat_id.required_if' => 'Choose the main category this sub-category belongs to.',
+        ];
+    }
+
+    private function decrypt_id($value)
+    {
+        try {
+            return decrypt($value);
+        } catch (\Throwable $e) {
+            abort(404);
+        }
+    }
+
     // Live check while typing: returns the URL path and any duplicate message
     public function category_check_name(Request $request)
     {
@@ -107,8 +211,17 @@ class CategoryController extends Controller
             return response()->json(['path' => null, 'duplicate' => false, 'message' => null]);
         }
 
-        $path = $this->category_path($name, $parent);
-        $error = $this->duplicate_error($name, $parent ? $parent->category_id : 0, $path);
+        // On the edit page the address only follows the name when asked (update_path=1)
+        $except = $request->filled('except') ? (int) $request->except : null;
+        $current = $except ? Category::find($except) : null;
+        if ($current && !$request->boolean('update_path') && (!$parent || $parent->category_id == $current->parent_cat_id)) {
+            $path = trim((string) $current->cat_path);
+        } elseif ($current && !$request->boolean('update_path')) {
+            $path = trim($parent->cat_path) . '/' . (Str::afterLast(trim((string) $current->cat_path), '/') ?: Str::slug($name));
+        } else {
+            $path = $this->category_path($name, $parent);
+        }
+        $error = $this->duplicate_error($name, $parent ? $parent->category_id : 0, $path, $except);
 
         return response()->json(['path' => $path, 'duplicate' => (bool) $error, 'message' => $error]);
     }
@@ -121,11 +234,12 @@ class CategoryController extends Controller
     }
 
     // Same name under the same parent (ignoring case, spacing and "&" vs "and"), or the same URL path
-    private function duplicate_error($name, $parent_id, $path)
+    private function duplicate_error($name, $parent_id, $path, $except_id = null)
     {
         $key = $this->name_key($name);
 
         $same_name = Category::where('parent_cat_id', $parent_id)
+            ->when($except_id, fn($query) => $query->where('category_id', '!=', $except_id))
             ->get(['category_id', 'cat_name'])
             ->first(fn($category) => $this->name_key($category->cat_name) === $key);
 
@@ -133,7 +247,9 @@ class CategoryController extends Controller
             return '"' . trim($same_name->cat_name) . '" already exists' . ($parent_id ? ' in this main category.' : ' as a main category.');
         }
 
-        $same_path = Category::whereRaw('LOWER(TRIM(cat_path)) = ?', [mb_strtolower($path)])->first(['cat_name']);
+        $same_path = Category::whereRaw('LOWER(TRIM(cat_path)) = ?', [mb_strtolower($path)])
+            ->when($except_id, fn($query) => $query->where('category_id', '!=', $except_id))
+            ->first(['cat_name']);
         if ($same_path) {
             return 'This would have the same web address as "' . trim($same_path->cat_name) . '" (' . $path . '). Choose a different name.';
         }

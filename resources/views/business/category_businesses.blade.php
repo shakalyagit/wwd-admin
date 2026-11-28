@@ -30,12 +30,15 @@
             @endif
         </p>
     </div>
+    <div class="d-flex gap-2 align-items-center">
+    <a href="{{ route('category_edit', encrypt($category->category_id)) }}" class="btn btn-light btn-sm"><i class="bi bi-pencil"></i> Edit category</a>
     @if ($is_main)
     <div class="btn-group">
         <a href="{{ route('category_businesses', $category->category_id) }}" class="btn btn-sm {{ $direct_only ? 'btn-light' : 'btn-primary' }}">Including sub-categories</a>
         <a href="{{ route('category_businesses', $category->category_id) }}?scope=direct" class="btn btn-sm {{ $direct_only ? 'btn-primary' : 'btn-light' }}">Main category only</a>
     </div>
     @endif
+    </div>
 </div>
 <x-flash />
 

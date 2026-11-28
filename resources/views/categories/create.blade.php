@@ -1,7 +1,11 @@
 @extends('layouts.main')
 @section('content')
 @php
-    $type = old('type', $selected_parent ? 'sub' : 'main');
+    $category = $category ?? null;
+    $editing = (bool) $category;
+    $type = $editing ? ($category->parent_cat_id ? 'sub' : 'main') : old('type', $selected_parent ? 'sub' : 'main');
+    $value = fn($field) => old($field, $editing ? trim((string) $category->$field) : '');
+    $is_feature = old('_token') ? old('is_feature') : ($editing && $category->is_feature);
     $parent_id = old('parent_cat_id', $selected_parent->category_id ?? '');
 @endphp
 <div class="content-header">
@@ -9,27 +13,42 @@
         <div class="page-breadcrumb">
             <a href="{{ route('category_count') }}"><i class="bi bi-arrow-left"></i> Categories</a>
         </div>
+        @if ($editing)
+        <h5>Edit category · {{ trim($category->cat_name) }}</h5>
+        <p class="page-subtitle">
+            {{ $type === 'sub' ? 'Sub-category of ' . trim($selected_parent->cat_name ?? '') : 'Main category with ' . $sub_count . ' ' . Str::plural('sub-category', $sub_count) }}
+            · <a href="{{ route('category_businesses', $category->category_id) }}">{{ number_format($business_count) }} {{ Str::plural('business', $business_count) }}</a>.
+            Changes show on the public site straight away.
+        </p>
+        @else
         <h5>Add category</h5>
         <p class="page-subtitle">Create a main category, or a sub-category inside one. Duplicate names are blocked.</p>
+        @endif
     </div>
 </div>
 <x-flash />
 
-<form action="{{ route('category_store') }}" method="POST" id="categoryForm" novalidate>
+<form action="{{ $editing ? route('category_update', encrypt($category->category_id)) : route('category_store') }}" method="POST" id="categoryForm" novalidate>
     @csrf
+    @if ($editing)
+    <input type="hidden" name="type" value="{{ $type }}">
+    @endif
     <div class="row g-3">
         <div class="col-xl-8">
             <div class="card mb-3">
                 <div class="card-header"><h5>Category</h5></div>
                 <div class="card-body">
                     <label class="form-label">Type</label>
+                    @if ($editing)
+                    <div class="form-text mt-0 mb-2">The type can't be changed. To move a sub-category, choose another main category below.</div>
+                    @endif
                     <div class="type-switch mb-3" role="radiogroup">
                         <label class="type-option">
-                            <input type="radio" name="type" value="main" @checked($type === 'main')>
+                            <input type="radio" name="type" value="main" @checked($type === 'main') @disabled($editing)>
                             <span><i class="bi bi-diagram-3"></i><strong>Main category</strong><small>Top level, e.g. "Food & Dining"</small></span>
                         </label>
                         <label class="type-option">
-                            <input type="radio" name="type" value="sub" @checked($type === 'sub')>
+                            <input type="radio" name="type" value="sub" @checked($type === 'sub') @disabled($editing)>
                             <span><i class="bi bi-diagram-2"></i><strong>Sub-category</strong><small>Inside a main category, e.g. "Bakeries"</small></span>
                         </label>
                     </div>
@@ -48,7 +67,7 @@
                     <div class="mb-3">
                         <label class="form-label" for="cat_name">Name</label>
                         <input type="text" name="cat_name" id="cat_name" maxlength="100" autocomplete="off"
-                            class="form-control @error('cat_name') is-invalid @enderror" value="{{ old('cat_name') }}"
+                            class="form-control @error('cat_name') is-invalid @enderror" value="{{ $value('cat_name') }}"
                             placeholder="e.g. Bakeries & Cafés" required>
                         <div class="name-check" id="nameCheck" aria-live="polite">
                             @error('cat_name')<span class="is-bad"><i class="bi bi-x-circle"></i> {{ $message }}</span>@enderror
@@ -59,7 +78,7 @@
                         <label class="form-label" for="cat_info">Description</label>
                         <textarea name="cat_info" id="cat_info" rows="4" maxlength="2000"
                             class="form-control @error('cat_info') is-invalid @enderror"
-                            placeholder="What kind of businesses belong here? Shown on the category page.">{{ old('cat_info') }}</textarea>
+                            placeholder="What kind of businesses belong here? Shown on the category page.">{{ $value('cat_info') }}</textarea>
                         @error('cat_info')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>
@@ -75,14 +94,14 @@
                         </div>
                         <textarea name="cat_meta_desc" id="cat_meta_desc" rows="2" maxlength="255"
                             class="form-control @error('cat_meta_desc') is-invalid @enderror"
-                            placeholder="One or two sentences shown in Google results.">{{ old('cat_meta_desc') }}</textarea>
+                            placeholder="One or two sentences shown in Google results.">{{ $value('cat_meta_desc') }}</textarea>
                         @error('cat_meta_desc')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         <div class="form-text">Aim for 120–160 characters.</div>
                     </div>
                     <div>
                         <label class="form-label" for="cat_keyword">Keywords</label>
                         <input type="text" name="cat_keyword" id="cat_keyword" maxlength="225"
-                            class="form-control @error('cat_keyword') is-invalid @enderror" value="{{ old('cat_keyword') }}"
+                            class="form-control @error('cat_keyword') is-invalid @enderror" value="{{ $value('cat_keyword') }}"
                             placeholder="bakery, cafe, coffee shop">
                         @error('cat_keyword')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         <div class="form-text">Comma separated.</div>
@@ -99,13 +118,13 @@
                     <div class="icon-field">
                         <div class="icon-preview" id="iconPreview"><i class="bi bi-image"></i></div>
                         <textarea name="cat_icon" id="cat_icon" rows="5" class="form-control font-monospace @error('cat_icon') is-invalid @enderror"
-                            placeholder="<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; …>…</svg>" style="font-size: 12px;">{{ old('cat_icon') }}</textarea>
+                            placeholder="<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; …>…</svg>" style="font-size: 12px;">{{ $value('cat_icon') }}</textarea>
                     </div>
                     @error('cat_icon')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     <div class="form-text mb-3">Optional. Paste an SVG icon, like the existing main categories use.</div>
 
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="is_feature" value="1" id="is_feature" @checked(old('is_feature'))>
+                        <input class="form-check-input" type="checkbox" name="is_feature" value="1" id="is_feature" @checked($is_feature)>
                         <label class="form-check-label" for="is_feature">Featured category</label>
                     </div>
                     <div class="form-text">Featured main categories are highlighted on the public site.</div>
@@ -122,10 +141,19 @@
                 <div class="card-body">
                     <div class="url-preview">
                         <span class="text-600 small">Web address</span>
-                        <code id="pathPreview">—</code>
+                        <code id="pathPreview">{{ $editing ? '/' . trim((string) $category->cat_path) : '—' }}</code>
                     </div>
+                    @if ($editing)
+                    <div class="form-check mb-1">
+                        <input class="form-check-input" type="checkbox" name="update_path" value="1" id="update_path" @checked(old('update_path'))>
+                        <label class="form-check-label small" for="update_path">Change the web address to match the new name</label>
+                    </div>
+                    <div class="form-text mb-3">Leave it off to keep links and Google results working.{{ $type === 'main' && $sub_count ? ' Sub-category addresses follow the main category.' : '' }}</div>
+                    <button type="submit" class="btn btn-primary w-100" id="saveButton"><i class="bi bi-check2"></i> Save changes</button>
+                    @else
                     <button type="submit" class="btn btn-primary w-100" id="saveButton"><i class="bi bi-check2"></i> Save category</button>
                     <button type="submit" name="after" value="another" class="btn btn-light w-100 mt-2" id="saveAnotherButton">Save and add another</button>
+                    @endif
                     <a href="{{ route('category_count') }}" class="btn btn-link w-100 mt-1">Cancel</a>
                 </div>
             </div>
@@ -142,7 +170,9 @@
         var parent = document.getElementById('parent_cat_id');
         var check = document.getElementById('nameCheck');
         var path_preview = document.getElementById('pathPreview');
-        var buttons = [document.getElementById('saveButton'), document.getElementById('saveAnotherButton')];
+        var buttons = [document.getElementById('saveButton'), document.getElementById('saveAnotherButton')].filter(Boolean);
+        var update_path = document.getElementById('update_path');
+        var except_id = @json($editing ? $category->category_id : null);
         var is_duplicate = false;
         var request_id = 0;
         var timer;
@@ -170,7 +200,12 @@
                     return;
                 }
                 var id = ++request_id;
-                $.get(@json(route('category_check_name')), { name: value, parent: parent_id }, function(response) {
+                var params = { name: value, parent: parent_id };
+                if (except_id) {
+                    params.except = except_id;
+                    params.update_path = update_path && update_path.checked ? 1 : 0;
+                }
+                $.get(@json(route('category_check_name')), params, function(response) {
                     if (id !== request_id) {
                         return;
                     }
@@ -188,7 +223,7 @@
             if (duplicate === true) {
                 check.innerHTML = '<span class="is-bad"><i class="bi bi-x-circle"></i> ' + $('<div>').text(message).html() + '</span>';
             } else if (duplicate === false) {
-                check.innerHTML = '<span class="is-good"><i class="bi bi-check-circle"></i> Name is available</span>';
+                check.innerHTML = '<span class="is-good"><i class="bi bi-check-circle"></i> ' + (except_id ? 'Name is OK' : 'Name is available') + '</span>';
             } else {
                 check.textContent = message || '';
             }
@@ -222,6 +257,9 @@
         });
         name.addEventListener('input', run_check);
         parent.addEventListener('change', run_check);
+        if (update_path) {
+            update_path.addEventListener('change', run_check);
+        }
         icon.addEventListener('input', show_icon);
         meta.addEventListener('input', count_meta);
         form.addEventListener('submit', function(e) {
