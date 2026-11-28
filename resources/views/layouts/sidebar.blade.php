@@ -6,7 +6,7 @@
         ],
         'Directory' => [
             ['Businesses', 'business_list', 'bi-building', ['business-list', 'business-approval-queue', 'edit-business/*']],
-            ['Admin listings', 'admin_listings', 'bi-building-add', ['admin-listings', 'business/create']],
+            ['Admin listings', 'admin_listings', 'bi-building-add', ['admin-listings', 'business/create', 'business-import', 'business-import/*']],
             ['Old businesses', 'old_business_list', 'bi-archive', ['old-business-list', 'edit-old-business/*']],
             ['Categories', 'category_count', 'bi-tags', ['category-count', 'category/*/businesses', 'add-category']],
         ],

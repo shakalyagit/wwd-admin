@@ -103,6 +103,7 @@ class NotificationSender
             'LoginURL'          => config('services.wwd.business_login_url'),
             'ClaimURL'          => config('services.wwd.claim_url'),
             'UnsubscribeURL'    => !empty($business->business_id) ? self::unsubscribe_url($business->business_id) : '',
+            'ListingURL'        => !empty($business->wwd_url) ? config('services.wwd.listing_url') . $business->wwd_url : (string) config('services.wwd.listing_url'),
         ];
     }
 

@@ -41,6 +41,8 @@ return [
         'business_login_url' => env('WWD_BUSINESS_LOGIN_URL', 'https://biz.worldweb-directory.com/login'),
         // Public base address of this admin app, used for email click-tracking links (/t/{token})
         'tracking_url' => env('WWD_TRACKING_URL', env('APP_URL')),
+        // Public listing page on the Listing site: listing_url . wwd_url (same setting as WWD Business), {{ListingURL}}
+        'listing_url' => env('WWD_LISTING_URL', 'https://worldweb-directory.com/review/'),
     ],
 
 

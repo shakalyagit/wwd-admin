@@ -54,6 +54,10 @@ Admin panel for **World Web Directory (WWD)**, a business listing directory. Adm
 - Website (by domain) and name (case-insensitive / `wwd_url` slug) must be unique across current `businesses`; `business_check` gives the live warning.
 - `admin_listings` (admin-owned) keeps source site, `added_by`, `claimed_at`; never shown publicly.
 - Claim invite template `listing_invite`: day 0 on save, then 3/10/30 via `notifications:listing-invites`, which the daily `notifications:verification-reminders` calls (production cron runs only that). Admin-posted businesses are excluded from the verification reminder.
+- Add business and Excel approval share `AdminListingController::check_listing()` (field + duplicate checks) and `create_listing()` (the save + invite); keep both paths going through them.
+- **Excel import** (`listing_import`): sample built by `App\Helpers\SimpleXlsx` (zip + XML only, no PhpSpreadsheet: the host has no Composer). Upload → `admin_listing_imports` + `admin_listing_drafts` (`uploaded` / `needs_fix` / `approved` / `skipped`); rows already on WWD or repeated are skipped and listed in `skipped_details`. Draft logos stay in `storage/app/listing-drafts` until approval.
+- Logo uploads use the WWD Business logo editor: `<x-logo-field>` + `<x-logo-editor>` + `public/assets/js/wwd-logo-editor.js` (copied; keep in step with WWD Business). The server still re-draws a 500×500 PNG.
+- `{{ListingURL}}` = `services.wwd.listing_url` (`WWD_LISTING_URL`) + `wwd_url`, the public listing page.
 - `{{UnsubscribeURL}}` (every business email) is a signed public link (`email_unsubscribe`): GET shows a confirm button, POST sets `notifications_paused`.
 
 ## Profile score

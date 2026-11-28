@@ -33,9 +33,9 @@
                 @endforeach
             </select>
         </form>
-        <a href="{{ route('business_create') }}" class="btn btn-primary text-nowrap"><i class="bi bi-plus-lg"></i> Add business</a>
     </div>
 </div>
+@include('admin_listings.partials.nav')
 <x-flash />
 
 <div class="row g-3 mb-3">

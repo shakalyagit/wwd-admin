@@ -43,6 +43,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/business/check', [AdminListingController::class, 'business_check'])->name('business_check');
     Route::get('/admin-listings', [AdminListingController::class, 'admin_listings'])->name('admin_listings');
     Route::post('/admin-listing-resend/{business_id}', [AdminListingController::class, 'admin_listing_resend'])->name('admin_listing_resend');
+    // Excel import: sample, upload, drafts to review, approve
+    Route::get('/business-import', [AdminListingController::class, 'listing_import'])->name('listing_import');
+    Route::get('/business-import/sample', [AdminListingController::class, 'listing_import_sample'])->name('listing_import_sample');
+    Route::post('/business-import/upload', [AdminListingController::class, 'listing_import_upload'])->name('listing_import_upload');
+    Route::post('/business-import/approve', [AdminListingController::class, 'listing_drafts_approve'])->name('listing_drafts_approve');
+    Route::get('/business-import/draft/{draft_id}', [AdminListingController::class, 'listing_draft'])->name('listing_draft');
+    Route::get('/business-import/draft/{draft_id}/logo', [AdminListingController::class, 'listing_draft_logo'])->name('listing_draft_logo');
+    Route::post('/business-import/draft/{draft_id}', [AdminListingController::class, 'listing_draft_save'])->name('listing_draft_save');
+    Route::post('/business-import/draft/{draft_id}/skip', [AdminListingController::class, 'listing_draft_skip'])->name('listing_draft_skip');
 
     Route::get('/users', [UserController::class, 'users'])->name('users');
     Route::post('/users-status-update', [UserController::class, 'users_status_update'])->name('users_status_update');

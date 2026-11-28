@@ -234,11 +234,12 @@ class BusinessController extends Controller
     public function edit_business_logo_action(Request $request, $id)
     {
         $request->validate([
-            'logo' => 'required|image|max:2048',
+            'logo' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
         ], [
-            'logo.required' => 'Business logo field is required',
-            'logo.image' => 'Business logo must be an image',
-            'logo.max' => 'Business logo size must not exceed 2MB',
+            'logo.required' => 'Choose a logo first.',
+            'logo.image' => 'The logo must be a JPG, PNG or WebP image.',
+            'logo.mimes' => 'The logo must be a JPG, PNG or WebP image.',
+            'logo.max' => 'The logo must be 5 MB or smaller.',
         ]);
 
         $edit_business = Business::findOrFail($id);

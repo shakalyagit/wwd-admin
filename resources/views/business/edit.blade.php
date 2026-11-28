@@ -423,21 +423,9 @@
                 enctype="multipart/form-data">
                 @csrf
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="">
-                                <label>Upload logo</label>
-                                <input type="file" name="logo" class="form-control" />
-                                <img src="{{env('UPLOAD_URL').$edit_business->file_path}}" alt="" width="100px" class="mt-2">
-                            </div>
-                            @error('logo')
-                            <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <button type="submit" class="btn btn-primary">Update</button>
-                        </div>
-                    </div>
+                    <x-logo-field name="logo" :url="$edit_business->file_path ? env('UPLOAD_URL') . $edit_business->file_path : null"
+                        :error="$errors->first('logo')" :initials="mb_strtoupper(mb_substr((string) $edit_business->business_name, 0, 2))" />
+                    <button type="submit" class="btn btn-primary mt-3">Update logo</button>
                 </div>
             </form>
         </div>
@@ -445,7 +433,11 @@
 </div>
 
 @include('business.partials.reject_modal', ['business' => $edit_business])
+<x-logo-editor :name="$edit_business->business_name" />
 @endsection
+@push('vendor_scripts')
+<script src="/assets/js/wwd-logo-editor.js?v={{ @filemtime(public_path('assets/js/wwd-logo-editor.js')) }}"></script>
+@endpush
 @section('scripts')
 <script>
 

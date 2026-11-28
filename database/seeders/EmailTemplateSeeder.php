@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\DB;
  */
 class EmailTemplateSeeder extends Seeder
 {
+    // "View your listing" link in the claim invite (also appended to an existing listing_invite by a migration)
+    public const LISTING_LINK = '<p style="text-align:center;"><a href="{{ListingURL}}" style="color:#dd3f3b; font-weight:600;">View your listing on WWD &rarr;</a></p>';
+    public const LISTING_URL_VARIABLE = ['name' => 'ListingURL', 'sample' => 'https://worldweb-directory.com/review/sunrise-bakery', 'description' => 'The business\'s public page on WWD'];
+
     public function run(): void
     {
         $owner = ['name' => 'BusinessOwnerName', 'sample' => 'Priya Sharma', 'description' => 'Business owner full name'];
@@ -277,13 +281,15 @@ class EmailTemplateSeeder extends Seeder
                     . '<li>Set your address, phone number and opening hours</li>'
                     . '<li>Reply to customer reviews and build trust</li>'
                     . '<li>Get more visibility and more customers</li></ul>'
-                    . '<p>Claiming is free and only takes a minute: we send a one-time code to this email address to confirm you own the business.</p>',
+                    . '<p>Claiming is free and only takes a minute: we send a one-time code to this email address to confirm you own the business.</p>'
+                    . self::LISTING_LINK,
                 'button_text'     => 'Claim my business',
                 'button_url'      => '{{ClaimURL}}',
                 'footer_note'     => 'You’re receiving this because {{BusinessName}} is listed on WWD. <a href="{{UnsubscribeURL}}">Unsubscribe</a>',
                 'variables'       => [$owner, $business,
                     ['name' => 'ClaimURL', 'sample' => 'https://biz.worldweb-directory.com/claim-business', 'description' => 'Claim business page'],
-                    ['name' => 'UnsubscribeURL', 'sample' => 'https://webadmin.worldweb-directory.com/unsubscribe/123', 'description' => 'Stops all reminder emails for this business']],
+                    ['name' => 'UnsubscribeURL', 'sample' => 'https://webadmin.worldweb-directory.com/unsubscribe/123', 'description' => 'Stops all reminder emails for this business'],
+                    self::LISTING_URL_VARIABLE],
                 'starts_at'       => now()->startOfDay(),
             ],
         ];
